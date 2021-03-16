@@ -1,0 +1,652 @@
+---
+title:  Multilevel Structural Equation Modeling | Exercises 2
+author: A. Stefanelli^[[Alberto Stefanelli](https://albertostefanelli.com/)], B. Castanho Silva^[[Bruno Castanho Silva](https://bcastanho.github.io)]
+# date: "`r Sys.Date()`"
+# fontsize: 10pt 
+bibliography: lib.bib
+link-citations: yes
+output:
+  #pdf_document:
+  rmdformats::readthedown:
+  self_contained: true
+thumbnails: true
+lightbox: true
+gallery: false
+highlight: tango
+use_bookdown: true
+fig_width: 12
+fig_height: 8
+# header-includes
+---
+  <style type="text/css">
+  #content {
+  max-width: 1500px !important;
+/*    !margin-left: 300px !important;
+*/
+  }
+#table-of-contents {
+width: 300px !important;
+}
+
+#postamble {
+font-size: 10px;
+}
+
+pre{
+  background-color: #FFFFFF;
+    font-size: 12px;
+}
+pre:not([class]) {
+  background-color: #D8D8D8;
+    color: black;
+}
+
+</style>
+  
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(tidy=FALSE, 
+                      fig.show = 'hold', 
+                      fig.align = "center", 
+                      warning = FALSE, 
+                      message = FALSE, 
+                      comment = '')
+options(width = 300, scipen = 9999)
+
+# last dev version is needed for rmdformats.
+# more info https://github.com/juba/rmdformats/issues/92 
+# devtools::install_github("juba/rmdformats")
+#BiocManager::install("rhdf5")
+
+```
+
+
+# Dataset 
+
+The data set used is the 7th wave of the World Values Survey. This wave is taking place in 2017-2021.
+
+Codebook:
+
+- **Q182**   Justifiable: Homosexuality (1. Never justifiable -- 10. Always justifiable)
+- **Q184**   Justifiable: Abortion (1. Never justifiable -- 10. Always justifiable)
+- **Q185**   Justifiable: Divorce (1. Never justifiable -- 10. Always justifiable)
+- **Q186**   Justifiable: Sex before marriage (1. Never justifiable -- 10. Always justifiable)
+- **Q188**   Justifiable: Euthanasia (1. Never justifiable -- 10. Always justifiable)
+- **Q275**   Education (0. early childhood/No education -- 8. Doctoral or equivalent, ISCED)
+- **Q172P**  How often to you pray (1. Never, practically never -- 8. Several times a day)
+
+# Environment preparation 
+
+First, let's load the necessary packages to load, manipulate, visualize and analyse the data. 
+
+```{r, echo=T, message=FALSE, warning=FALSE,cache=F}
+
+# Uncomment this once if you need to install the packages on your system 
+
+### DATA MANIPULATION ###
+# install.packages("readr")                 # data import
+# install.packages("dplyr")                 # data manipulation
+# install.packages("stringr")               # string manipulation
+
+### MODELING ###
+# install.packages("MplusAutomation")       # Talk to Mplus from R
+
+### VISUALIZATION ###
+# install.packages("tidySEM")               # plotting SEM models
+
+
+# Load the packages 
+
+### DATA MANIPULATION ###
+library("readr")      
+library("dplyr")      
+library("stringr")
+
+### MODELING ###
+library("MplusAutomation")       
+
+### VISUALIZATION ###
+library("texreg")
+library("tidySEM")
+
+```
+
+
+# Exercise instructions
+
+1. Assess and interpret the ICCs of the progressive values items (Q184, Q185, Q186, Q188) by fitting a null model (no substantive covariates of the outcome at either level of the model). 
+1. Fit a unidimensional two-levels factor model measuring attitudes towards progressive values (Q184, Q185, Q186, Q188) with the same factor structure on both levels. Fix one of the loadings for a latent variable to 1, and allow the factor variance to be estimated.
+3. Alternative specification: allow all factor loadings to be estimated, and fix factor variances to 1. **(OPTIONAL)**
+4. Perform a partially saturated model fit evaluation to assess at which level there is the highest lack of fit.
+5. Test for cross-level invariance by imposing equality constraints on the estimated factor loadings at both level.
+6. Fit a model with Random Factor Loadings. Interpret the results and compare to the previous model using different in  Deviance (DIC). 
+
+# Null model and ICCs
+
+```{r, echo=T, message=FALSE, warning=FALSE}
+# read and prepare the data ##
+wvs7 <- read_csv("https://github.com/albertostefanelli/MLSEM_exercises/raw/master/wvs7_ex_2.csv")
+# transform dummy as factor as required by MplusAutomation  
+wvs7_f <- wvs7 %>% 
+          mutate_at(vars(Country), as.factor)
+# remove feamle (need it later)
+wvs7_f_m <- wvs7_f %>% select(-Q275,-Q172P)
+
+# write the Mplus model
+prog_null_model <- mplusObject(
+  TITLE = "Null model Q182 Q184, Q185, Q186, Q188;",
+  VARIABLE = paste(paste(strwrap(paste("USEVARIABLES = ",paste(names(wvs7_f_m), collapse=" "),
+                                       ";"), 30), collapse = "\n"),
+  "CLUSTER = Country;",    # grouping variable 
+  sep = "\n"
+  ),
+  ANALYSIS = " TYPE = TWOLEVEL; ! multi-level   
+               PROCESSORS = 2;  ! nuber of phisical processor in your machine", 
+  MODEL = "
+  %WITHIN% 
+  Q182 Q184 Q185 Q186 Q188;
+
+  %BETWEEN%
+  Q182 Q184 Q185 Q186 Q188;
+
+  ",
+  rdata = wvs7_f_m
+)
+
+
+```
+
+```{r, echo=T, message=FALSE, warning=FALSE, results='hide'}
+## Run the model ##
+
+prog_null_results <- mplusModeler(object = prog_null_model,           # the model syntax
+                                   modelout = "prog_null_model.inp",  # output file 
+                                   run = 1L,                          # how many models should be run (1)
+                                   hashfilename = FALSE               # add a hash of the raw data
+                       )
+
+prog_null_results$results$data_summary$ICC
+
+```
+
+# Configural model with same factor structure across the two levels
+
+```{r, echo=T, message=FALSE, warning=FALSE}
+
+# write the Mplus model
+prog_c_model <- mplusObject(
+  TITLE = "Configural model;",
+  VARIABLE = paste(paste(strwrap(paste("USEVARIABLES = ",paste(names(wvs7_f_m), collapse=" "),
+                                       ";"), 30), collapse = "\n"),
+  "CLUSTER = Country;",    # grouping variable 
+  sep = "\n"
+  ),
+  ANALYSIS = " TYPE = TWOLEVEL; ! multi-level   
+               PROCESSORS = 2;  ! nuber of phisical processor in your machine", 
+  MODEL = "
+  %WITHIN% 
+  prog_w BY Q182 (lw1);
+  prog_w BY Q184 (lw2);
+  prog_w BY Q185 (lw3);
+  prog_w BY Q186 (lw4);
+  prog_w BY Q188 (lw5);
+
+  %BETWEEN%
+  prog_b BY Q182 (lb1);
+  prog_b BY Q184 (lb2);
+  prog_b BY Q185 (lb3);
+  prog_b BY Q186 (lb4);
+  prog_b BY Q188 (lb5);
+  ",
+  rdata = wvs7_f_m
+)
+
+
+```
+
+```{r, echo=T, message=FALSE, warning=FALSE, results='hide'}
+## Run the model ##
+
+prog_c_results <- mplusModeler(object = prog_c_model,              # the model syntax
+                                   modelout = "prog_c_model.inp",  # output file 
+                                   run = 1L,                       # how many models should be run (1)
+                                   hashfilename = FALSE            # add a hash of the raw data
+
+                                                      )
+
+```
+
+```{r, echo=T, message=FALSE, warning=FALSE}
+
+prog_c_results$results$summaries$CFI
+prog_c_results$results$summaries$TLI
+prog_c_results$results$summaries$AIC
+prog_c_results$results$summaries$BIC
+prog_c_results$results$summaries$RMSEA_Estimate
+
+
+```
+
+# Configural model alternative specification (OPTIONAL)
+
+```{r, echo=T, message=FALSE, warning=FALSE}
+
+# write the Mplus model
+prog_c_alt_model <- mplusObject(
+  TITLE = "Configural model alternative specification ;",
+  VARIABLE = paste(paste(strwrap(paste("USEVARIABLES = ",paste(names(wvs7_f_m), collapse=" "),
+                                       ";"), 30), collapse = "\n"),
+  "CLUSTER = Country;",    # grouping variable 
+  sep = "\n"
+  ),
+  ANALYSIS = " TYPE = TWOLEVEL; ! multi-level   
+               PROCESSORS = 2;  ! nuber of phisical processor in your machine", 
+  MODEL = "
+  %WITHIN% 
+  prog_w BY Q182* (lw1); ! free loading 
+  prog_w BY Q184  (lw2);
+  prog_w BY Q185  (lw3);
+  prog_w BY Q186  (lw4);
+  prog_w BY Q188  (lw5);
+  prog_w@1;   ! variance of the factor 
+  [prog_w@0]; ! mean of the factor 
+
+  %BETWEEN%
+  prog_b BY Q182* (lb1); ! free loading 
+  prog_b BY Q184  (lb2);
+  prog_b BY Q185  (lb3);
+  prog_b BY Q186  (lb4);
+  prog_b BY Q188  (lb5);
+  prog_b@1;   ! variance of the factor 
+  [prog_b@0]; ! mean of the factor 
+  ",
+  rdata = wvs7_f_m
+)
+
+
+```
+
+
+```{r, echo=T, message=FALSE, warning=FALSE, results='hide'}
+## Run the model ##
+
+prog_c_alt_results <- mplusModeler(object = prog_c_alt_model,              # the model syntax
+                                   modelout = "prog_c_alt_model.inp",  # output file 
+                                   run = 1L,                       # how many models should be run (1)
+                                   hashfilename = FALSE            # add a hash of the raw data
+
+                                                      )
+
+```
+
+```{r, echo=T, message=FALSE, warning=FALSE}
+
+params <- prog_c_alt_results$results$parameters$unstandardized
+## loadings ## 
+loadings_within <- params %>% filter(paramHeader == "PROG_W.BY") %>% 
+                   select(est) %>% 
+                   unlist() %>%
+                   array()
+
+
+loadings_between <- params %>% filter(paramHeader == "PROG_B.BY") %>% 
+                   select(est) %>% 
+                   unlist() %>%
+                   array()
+
+
+cbind(loadings_within, loadings_between)
+```
+
+# Partially saturated model fit
+
+## Within level
+
+```{r, echo=T, message=FALSE, warning=FALSE}
+
+# write the Mplus model
+prog_sat_w_model <- mplusObject(
+  TITLE = "Partially saturated model within level ;",
+  VARIABLE = paste(paste(strwrap(paste("USEVARIABLES = ",paste(names(wvs7_f_m), collapse=" "),
+                                       ";"), 30), collapse = "\n"),
+  "CLUSTER = Country;",    # grouping variable 
+  sep = "\n"
+  ),
+  ANALYSIS = " TYPE = TWOLEVEL; ! multi-level   
+               PROCESSORS = 2;  ! nuber of phisical processor in your machine", 
+  MODEL = "
+  %WITHIN% 
+  Q182 Q184 Q185 Q186 Q188 WITH 
+  Q182 Q184 Q185 Q186 Q188;
+
+  %BETWEEN%
+  prog_b BY Q182 (lb1);
+  prog_b BY Q184 (lb2);
+  prog_b BY Q185 (lb3);
+  prog_b BY Q186 (lb4);
+  prog_b BY Q188 (lb5);
+  ",
+  rdata = wvs7_f_m
+)
+
+
+```
+
+```{r, echo=T, message=FALSE, warning=FALSE, results='hide'}
+## Run the model ##
+
+prog_sat_w_results <- mplusModeler(object = prog_sat_w_model,             
+                                   modelout = "prog_sat_w_model.inp",  
+                                   run = 1L,                       
+                                   hashfilename = FALSE            
+
+                                                      )
+
+```
+
+## Between level
+
+```{r, echo=T, message=FALSE, warning=FALSE}
+
+# write the Mplus model
+prog_sat_b_model <- mplusObject(
+  TITLE = "Partially saturated model between level ;",
+  VARIABLE = paste(paste(strwrap(paste("USEVARIABLES = ",paste(names(wvs7_f_m), collapse=" "),
+                                       ";"), 30), collapse = "\n"),
+  "CLUSTER = Country;",    # grouping variable 
+  sep = "\n"
+  ),
+  ANALYSIS = " TYPE = TWOLEVEL; ! multi-level   
+               PROCESSORS = 2;  ! nuber of phisical processor in your machine", 
+  MODEL = "
+  %WITHIN% 
+  prog_w BY Q182 (lw1);
+  prog_w BY Q184 (lw2);
+  prog_w BY Q185 (lw3);
+  prog_w BY Q186 (lw4);
+  prog_w BY Q188 (lw5);
+
+  %BETWEEN%
+  Q182 Q184 Q185 Q186 Q188 WITH 
+  Q182 Q184 Q185 Q186 Q188;
+
+  ",
+  rdata = wvs7_f_m
+)
+
+
+```
+
+```{r, echo=T, message=FALSE, warning=FALSE, results='hide'}
+## Run the model ##
+
+prog_sat_b_results <- mplusModeler(object = prog_sat_b_model,             
+                                   modelout = "prog_sat_b_model.inp",  
+                                   run = 1L,                       
+                                   hashfilename = FALSE            
+
+                                                      )
+
+
+
+```
+
+
+```{r, echo=T, message=FALSE, warning=FALSE}
+
+comparison_df <- data.frame("Models"= c("Global", "Saturated Within", "Saturated between"), 
+                "LL" = c(prog_c_results$results$summaries$LL, 
+                         prog_sat_w_results$results$summaries$LL, 
+                         prog_sat_b_results$results$summaries$LL),
+
+
+                "df" = c(prog_c_results$results$summaries$ChiSqM_DF, 
+                         prog_sat_w_results$results$summaries$ChiSqM_DF, 
+                         prog_sat_b_results$results$summaries$ChiSqM_DF),
+      
+                "CFI" = c(prog_c_results$results$summaries$CFI, 
+                         prog_sat_w_results$results$summaries$CFI, 
+                         prog_sat_b_results$results$summaries$CFI),
+                
+                "TLI" = c(prog_c_results$results$summaries$TLI, 
+                         prog_sat_w_results$results$summaries$TLI, 
+                         prog_sat_b_results$results$summaries$TLI),
+                
+                "AIC" = c(prog_c_results$results$summaries$AIC, 
+                         prog_sat_w_results$results$summaries$AIC, 
+                         prog_sat_b_results$results$summaries$AIC),
+                
+                "BIC" = c(prog_c_results$results$summaries$BIC, 
+                         prog_sat_w_results$results$summaries$BIC, 
+                         prog_sat_b_results$results$summaries$BIC),
+                
+                "RMSEA"= c(prog_c_results$results$summaries$RMSEA_Estimate, 
+                         prog_sat_w_results$results$summaries$RMSEA_Estimate, 
+                         prog_sat_b_results$results$summaries$RMSEA_Estimate)
+)
+
+comparison_df
+
+```
+
+# Cross-level invariance
+
+
+```{r, echo=T, message=FALSE, warning=FALSE}
+
+# write the Mplus model
+prog_inv_model <- mplusObject(
+  TITLE = "Cross-level invariance model;",
+  VARIABLE = paste(paste(strwrap(paste("USEVARIABLES = ",paste(names(wvs7_f_m), collapse=" "),
+                                       ";"), 30), collapse = "\n"),
+  "CLUSTER = Country;",    # grouping variable 
+  sep = "\n"
+  ),
+  ANALYSIS = " TYPE = TWOLEVEL; ! multi-level   
+               PROCESSORS = 2;  ! nuber of phisical processor in your machine", 
+  MODEL = "
+  %WITHIN% 
+  prog_w BY Q182 (l1);
+  prog_w BY Q184 (l2);
+  prog_w BY Q185 (l3);
+  prog_w BY Q186 (l4);
+  prog_w BY Q188 (l5);
+
+  %BETWEEN%
+  prog_b BY Q182 (l1);
+  prog_b BY Q184 (l2);
+  prog_b BY Q185 (l3);
+  prog_b BY Q186 (l4);
+  prog_b BY Q188 (l5);
+  ",
+  rdata = wvs7_f_m
+)
+
+
+```
+
+```{r, echo=T, message=FALSE, warning=FALSE, results='hide'}
+## Run the model ##
+
+prog_inv_results <- mplusModeler(object = prog_inv_model,            
+                                   modelout = "prog_inv_model.inp", 
+                                   run = 1L,                      
+                                   hashfilename = FALSE         
+
+                                                      )
+
+```
+
+
+
+```{r, echo=T, message=FALSE, warning=FALSE}
+
+comparison_df <- data.frame("Models"= c("Configural", "Cross-Level Invariant"), 
+                "LL" = c(prog_c_results$results$summaries$LL, 
+                         prog_inv_results$results$summaries$LL),
+
+                "df" = c(prog_c_results$results$summaries$ChiSqM_DF, 
+                         prog_inv_results$results$summaries$ChiSqM_DF),
+      
+                "CFI" = c(prog_c_results$results$summaries$CFI, 
+                         prog_inv_results$results$summaries$CFI),
+                
+                "TLI" = c(prog_c_results$results$summaries$TLI, 
+                         prog_inv_results$results$summaries$TLI),
+                
+                "AIC" = c(prog_c_results$results$summaries$AIC, 
+                         prog_inv_results$results$summaries$AIC),
+                
+                "BIC" = c(prog_c_results$results$summaries$BIC, 
+                         prog_inv_results$results$summaries$BIC),
+                
+                "RMSEA"= c(prog_c_results$results$summaries$RMSEA_Estimate, 
+                         prog_inv_results$results$summaries$RMSEA_Estimate)
+)
+
+comparison_df
+
+```
+
+
+# Random loadings model
+
+
+
+```{r, echo=T, message=FALSE, warning=FALSE}
+
+# write the Mplus model
+prog_random_model <- mplusObject(
+  TITLE = "Cross-level invariance model;",
+  VARIABLE = paste(paste(strwrap(paste("USEVARIABLES = ",paste(names(wvs7_f_m), collapse=" "),
+                                       ";"), 30), collapse = "\n"),
+  "CLUSTER = Country;",    # grouping variable 
+  sep = "\n"
+  ),
+  ANALYSIS = " TYPE = TWOLEVEL RANDOM ; ! multi-level with random effects  
+               ESTIMATOR = BAYES; ! works only with the bayesian estimator
+               PROCESSORS = 2;  ! nuber of phisical processor in your machine", 
+  MODEL = "
+  %WITHIN% 
+  s1 | prog_w BY Q182;
+  s2 | prog_w BY Q184;
+  s3 | prog_w BY Q185;
+  s4 | prog_w BY Q186;
+  s5 | prog_w BY Q188;
+
+  %BETWEEN%
+  s1-s5 
+  prog_b BY Q182;
+  prog_b BY Q184;
+  prog_b BY Q185;
+  prog_b BY Q186;
+  prog_b BY Q188;
+  ",
+  rdata = wvs7_f_m
+)
+
+
+```
+
+```{r, echo=T, message=FALSE, warning=FALSE, results='hide'}
+## Run the model ##
+
+prog_random_results <- mplusModeler(object = prog_random_model,            
+                                   modelout = "prog_random_model.inp", 
+                                   run = 1L,                      
+                                   hashfilename = FALSE         
+)
+
+```
+
+```{r, echo=T, message=FALSE, warning=FALSE}
+params <- prog_random_results$results$parameters$unstandardized
+means <- params %>% filter(str_detect(param, "S")) %>%
+                filter(str_detect(paramHeader, "Means"))%>% 
+                select(param, est,lower_2.5ci,upper_2.5ci)%>%
+                dplyr::rename("Loadings Estimates"  = est)
+
+var <- params %>% filter(str_detect(param, "S")) %>%
+                filter(str_detect(paramHeader, "Variances"))%>% 
+                select(param, est) %>%
+                dplyr::rename("Loadings Variance" = est)
+
+table_random_loadings <- left_join(means,var,by="param") %>%
+                         select(param,"Loadings Estimates","Loadings Variance", everything() ) %>%
+                         dplyr::rename("Parameter" = param) %>%
+                         dplyr::rename("Lower CI (95%)" = lower_2.5ci) %>%
+                         dplyr::rename("Upper CI (95%)" = upper_2.5ci)
+
+table_random_loadings
+```
+
+
+
+```{r, echo=T, message=FALSE, warning=FALSE}
+
+# write the Mplus model
+prog_c_bayes_model <- mplusObject(
+  TITLE = "Baseline invariance model estimated with bayes;",
+  VARIABLE = paste(paste(strwrap(paste("USEVARIABLES = ",paste(names(wvs7_f_m), collapse=" "),
+                                       ";"), 30), collapse = "\n"),
+  "CLUSTER = Country;",    # grouping variable 
+  sep = "\n"
+  ),
+  ANALYSIS = " TYPE = TWOLEVEL; 
+               ESTIMATOR = BAYES;
+               PROCESSORS = 2;  ! nuber of phisical processor in your machine", 
+  MODEL = "
+  %WITHIN% 
+  prog_w BY Q182;
+  prog_w BY Q184;
+  prog_w BY Q185;
+  prog_w BY Q186;
+  prog_w BY Q188;
+
+  %BETWEEN%
+  prog_b BY Q182;
+  prog_b BY Q184;
+  prog_b BY Q185;
+  prog_b BY Q186;
+  prog_b BY Q188;
+  ",
+  rdata = wvs7_f_m
+)
+
+
+```
+
+
+```{r, echo=T, message=FALSE, warning=FALSE, results='hide'}
+## Run the model ##
+
+prog_c_bayes_results <- mplusModeler(object = prog_c_bayes_model,            
+                                   modelout = "prog_c_bayes_model.inp", 
+                                   run = 1L,                      
+                                   hashfilename = FALSE         
+)
+
+```
+
+
+```{r, echo=T, message=FALSE, warning=FALSE}
+
+comparison_df <- data.frame("Models"= c("Baseline", "Random Loadings"), 
+                "DIC" = c(prog_c_bayes_results$results$summaries$DIC, 
+                         prog_random_results$results$summaries$DIC),
+
+                "pD" = c(prog_c_bayes_results$results$summaries$pD, 
+                         prog_random_results$results$summaries$pD)
+
+)
+
+comparison_df$delta <-  NA
+
+comparison_df$delta[2] <-  comparison_df$DIC[2] - comparison_df$DIC[1] 
+
+comparison_df
+```
+The DIC of the model which allows loadings to vary across countries is lower compared to the baseline, indicating better fit. Therefore, allowing factor loadings to vary across countries produces a better fitting model than constraining them to be the same. 
+
+
+# References 
