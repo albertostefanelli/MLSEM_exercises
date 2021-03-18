@@ -60,6 +60,10 @@ options(width = 300, scipen = 9999)
 
 ```
 
+# Where to find the mplus scripts for this lab 
+
+https://github.com/albertostefanelli/MLSEM_exercises
+
 
 # Dataset 
 
