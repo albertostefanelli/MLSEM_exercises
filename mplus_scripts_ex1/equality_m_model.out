@@ -1,0 +1,272 @@
+Mplus VERSION 8.4 (Mac)
+MUTHEN & MUTHEN
+03/17/2021  11:35 AM
+
+INPUT INSTRUCTIONS
+
+  TITLE:
+  2:1:1 Mediation model with Gender Job Equality (Q31P) as mediator - total and indirect;
+  DATA:
+  FILE = "equality_m_model.dat";
+
+  VARIABLE:
+  NAMES = Country v2x_gender Q33P Q31P;
+   MISSING=.;
+   USEVARIABLES = Country
+  v2x_gender Q33P Q31P ;
+  BETWEEN = v2x_gender;
+  CLUSTER = Country;
+  ANALYSIS:
+  TYPE = TWOLEVEL;
+                 PROCESSORS = 2;
+  MODEL:
+
+    %WITHIN%
+    Q33P ON Q31P (b); ! add label to use in model constrain
+
+    %BETWEEN%
+    Q33P ON v2x_gender (c); ! add label to use in model constrain
+    Q31P ON v2x_gender (a); ! add label to use in model constrain
+
+  MODEL CONSTRAINT:
+
+    NEW (ind total);
+    ind = a * b; ! indirect effect
+    total = c + (a * b); !ntotal effect
+
+
+
+
+*** WARNING in VARIABLE command
+  Note that only the first 8 characters of variable names are used in the output.
+  Shorten variable names to avoid any confusion.
+*** WARNING in MODEL command
+  In the MODEL command, the following variable is a y-variable on the BETWEEN
+  level and an x-variable on the WITHIN level.  This variable will be treated
+  as a y-variable on both levels:  Q31P
+*** WARNING
+  Data set contains cases with missing on all variables except
+  x-variables.  These cases were not included in the analysis.
+  Number of cases with missing on all variables except x-variables:  196
+   3 WARNING(S) FOUND IN THE INPUT INSTRUCTIONS
+
+
+
+
+2:1:1 Mediation model with Gender Job Equality (Q31P) as mediator - total and indirect;
+
+SUMMARY OF ANALYSIS
+
+Number of groups                                                 1
+Number of observations                                       67517
+
+Number of dependent variables                                    2
+Number of independent variables                                  1
+Number of continuous latent variables                            0
+
+Observed dependent variables
+
+  Continuous
+   Q33P        Q31P
+
+Observed independent variables
+   V2X_GEND
+
+Variables with special functions
+
+  Cluster variable      COUNTRY
+
+  Between variables
+   V2X_GEND
+
+
+Estimator                                                      MLR
+Information matrix                                        OBSERVED
+Maximum number of iterations                                   100
+Convergence criterion                                    0.100D-05
+Maximum number of EM iterations                                500
+Convergence criteria for the EM algorithm
+  Loglikelihood change                                   0.100D-02
+  Relative loglikelihood change                          0.100D-05
+  Derivative                                             0.100D-03
+Minimum variance                                         0.100D-03
+Maximum number of steepest descent iterations                   20
+Maximum number of iterations for H1                           2000
+Convergence criterion for H1                             0.100D-03
+Optimization algorithm                                         EMA
+
+Input data file(s)
+  equality_m_model.dat
+Input data format  FREE
+
+
+SUMMARY OF DATA
+
+     Number of missing data patterns             3
+     Number of clusters                         46
+
+     Average cluster size     1467.761
+
+     Estimated Intraclass Correlations for the Y Variables
+
+                Intraclass              Intraclass
+     Variable  Correlation   Variable  Correlation
+
+     Q33P         0.270      Q31P         0.193
+
+
+
+COVARIANCE COVERAGE OF DATA
+
+Minimum covariance coverage value   0.100
+
+
+     PROPORTION OF DATA PRESENT
+
+
+           Covariance Coverage
+              Q33P          Q31P          V2X_GEND
+              ________      ________      ________
+ Q33P           0.995
+ Q31P           0.976         0.981
+ V2X_GEND       0.995         0.981         1.000
+
+
+
+UNIVARIATE SAMPLE STATISTICS
+
+
+     UNIVARIATE HIGHER-ORDER MOMENT DESCRIPTIVE STATISTICS
+
+         Variable/         Mean/     Skewness/   Minimum/ % with                Percentiles
+        Sample Size      Variance    Kurtosis    Maximum  Min/Max      20%/60%    40%/80%    Median
+
+     Q33P                  3.112       0.026       1.000   10.19%       2.000      2.000      3.000
+           67190.000       1.710      -1.269       5.000   18.92%       4.000      4.000
+     Q31P                  2.315       0.317       1.000   19.12%       2.000      2.000      2.000
+           66253.000       0.858      -0.722       4.000   13.00%       2.000      3.000
+     V2X_GENDER            0.758      -0.898       0.425    4.35%       0.655      0.737      0.792
+              46.000       0.020       0.021       0.953    2.17%       0.834      0.865
+
+
+THE MODEL ESTIMATION TERMINATED NORMALLY
+
+
+
+MODEL FIT INFORMATION
+
+Number of Free Parameters                       10
+
+Loglikelihood
+
+          H0 Value                     -179905.533
+          H0 Scaling Correction Factor     18.0169
+            for MLR
+          H1 Value                     -179905.533
+          H1 Scaling Correction Factor     18.0169
+            for MLR
+
+Information Criteria
+
+          Akaike (AIC)                  359831.065
+          Bayesian (BIC)                359922.267
+          Sample-Size Adjusted BIC      359890.486
+            (n* = (n + 2) / 24)
+
+Chi-Square Test of Model Fit
+
+          Value                              0.000*
+          Degrees of Freedom                     0
+          P-Value                           1.0000
+          Scaling Correction Factor         1.0000
+            for MLR
+
+*   The chi-square value for MLM, MLMV, MLR, ULSMV, WLSM and WLSMV cannot be used
+    for chi-square difference testing in the regular way.  MLM, MLR and WLSM
+    chi-square difference testing is described on the Mplus website.  MLMV, WLSMV,
+    and ULSMV difference testing is done using the DIFFTEST option.
+
+RMSEA (Root Mean Square Error Of Approximation)
+
+          Estimate                           0.000
+
+CFI/TLI
+
+          CFI                                1.000
+          TLI                                1.000
+
+Chi-Square Test of Model Fit for the Baseline Model
+
+          Value                           1354.316
+          Degrees of Freedom                     4
+          P-Value                           0.0000
+
+SRMR (Standardized Root Mean Square Residual)
+
+          Value for Within                   0.000
+          Value for Between                  0.000
+
+
+
+MODEL RESULTS
+
+                                                    Two-Tailed
+                    Estimate       S.E.  Est./S.E.    P-Value
+
+Within Level
+
+ Q33P       ON
+    Q31P               0.501      0.024     21.250      0.000
+
+ Variances
+    Q31P               0.690      0.032     21.779      0.000
+
+ Residual Variances
+    Q33P               1.078      0.053     20.462      0.000
+
+Between Level
+
+ Q33P       ON
+    V2X_GENDER        -3.060      0.567     -5.400      0.000
+
+ Q31P       ON
+    V2X_GENDER        -1.884      0.338     -5.567      0.000
+
+ Q31P     WITH
+    Q33P               0.140      0.023      6.126      0.000
+
+ Intercepts
+    Q33P               5.442      0.435     12.506      0.000
+    Q31P               3.739      0.268     13.935      0.000
+
+ Residual Variances
+    Q33P               0.275      0.045      6.096      0.000
+    Q31P               0.094      0.014      6.683      0.000
+
+New/Additional Parameters
+    IND               -0.945      0.160     -5.913      0.000
+    TOTAL             -4.005      0.704     -5.692      0.000
+
+
+QUALITY OF NUMERICAL RESULTS
+
+     Condition Number for the Information Matrix              0.179E-06
+       (ratio of smallest to largest eigenvalue)
+
+
+     Beginning Time:  11:35:46
+        Ending Time:  11:35:47
+       Elapsed Time:  00:00:01
+
+
+
+MUTHEN & MUTHEN
+3463 Stoner Ave.
+Los Angeles, CA  90066
+
+Tel: (310) 391-9971
+Fax: (310) 391-8971
+Web: www.StatModel.com
+Support: Support@StatModel.com
+
+Copyright (c) 1998-2019 Muthen & Muthen

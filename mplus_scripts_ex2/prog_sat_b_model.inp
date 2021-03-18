@@ -1,0 +1,28 @@
+TITLE:
+Partially saturated model between level ;
+DATA:
+FILE = "prog_sat_b_model.dat";
+ 
+VARIABLE:
+NAMES = Country Q182 Q184 Q185 Q186 Q188; 
+ MISSING=.;
+ USEVARIABLES = Country Q182
+Q184 Q185 Q186 Q188 ;
+CLUSTER = Country;
+ANALYSIS:
+ TYPE = TWOLEVEL; ! multi-level   
+               PROCESSORS = 2;  ! nuber of phisical processor in your machine
+MODEL:
+
+  %WITHIN% 
+  prog_w BY Q182 (lw1);
+  prog_w BY Q184 (lw2);
+  prog_w BY Q185 (lw3);
+  prog_w BY Q186 (lw4);
+  prog_w BY Q188 (lw5);
+
+  %BETWEEN%
+  Q182 Q184 Q185 Q186 Q188 WITH 
+  Q182 Q184 Q185 Q186 Q188;
+
+  

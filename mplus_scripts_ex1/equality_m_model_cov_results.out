@@ -1,0 +1,49 @@
+Mplus VERSION 8.4 (Mac)
+MUTHEN & MUTHEN
+03/17/2021  11:35 AM
+
+INPUT INSTRUCTIONS
+
+  TITLE:
+  2:1:1 Mediation model with Gender Job Equality (Q31P) as mediator - no cov LV2 ;
+  DATA:
+  FILE = "equality_m_model_cov_results.dat";
+
+  VARIABLE:
+  NAMES = Country v2x_gender Q33P Q31P;
+   MISSING=.;
+   USEVARIABLES = Country
+  v2x_gender Q33P Q31P ;
+  BETWEEN = v2x_gender;
+  CLUSTER = Country;
+  ANALYSIS:
+  TYPE = TWOLEVEL;
+                 PROCESSORS = 2;
+  MODEL:
+
+    %WITHIN%
+    Q33P ON Q31P
+
+    %BETWEEN%
+    Q33P ON v2x_gender
+    Q31P ON v2x_gender
+    Q31P WITH Q33P@0; ! covariance between Q33P and Q31P to 0
+
+
+*** WARNING in VARIABLE command
+  Note that only the first 8 characters of variable names are used in the output.
+  Shorten variable names to avoid any confusion.
+*** ERROR in MODEL command
+  Unknown variable(s) in an ON statement:  ON
+
+
+MUTHEN & MUTHEN
+3463 Stoner Ave.
+Los Angeles, CA  90066
+
+Tel: (310) 391-9971
+Fax: (310) 391-8971
+Web: www.StatModel.com
+Support: Support@StatModel.com
+
+Copyright (c) 1998-2019 Muthen & Muthen

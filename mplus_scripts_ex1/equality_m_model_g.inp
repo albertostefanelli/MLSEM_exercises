@@ -1,0 +1,44 @@
+TITLE:
+2:1:1 Mediation model with Gender Job Equality (Q31P) as mediator and gender (female) as LV1 predictor;
+DATA:
+FILE = "equality_m_model_g.dat";
+ 
+VARIABLE:
+NAMES = Country v2x_gender female Q33P Q31P; 
+ MISSING=.;
+ USEVARIABLES = Country
+v2x_gender female Q33P Q31P ;
+BETWEEN = v2x_gender;
+WITHIN = female;
+CLUSTER = Country;
+ANALYSIS:
+TYPE = TWOLEVEL;
+             !INTEGRATION=2  
+             !ESTIMATOR IS MLR;
+             !ESTIMATOR = BAYES;
+             PROCESSORS = 2;
+             !BITERATIONS = 300000;
+             !ALGORITHM=MH;
+             !FBITERATIONS = 300000;
+             !THIN = 2;
+             !ITERATIONS = (100000)
+MODEL:
+
+  %WITHIN% 
+  Q33P ON Q31P (b);
+  Q31P ON female;
+  Q33P ON female;
+  Q31P;
+  Q33P;
+  
+  %BETWEEN%
+  Q33P ON v2x_gender (c);
+  Q31P ON v2x_gender (a);
+
+  
+MODEL CONSTRAINT:
+
+  NEW (ind total);
+  ind = a * b;
+  total = c + (a * b);
+  

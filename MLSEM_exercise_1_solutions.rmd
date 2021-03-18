@@ -293,9 +293,12 @@ residuals_within
 ## calculate ICC for Q31P ##
 residuals_between_Q31P <- residuals_between %>% 
                           filter(param == "Q31P")
+
 residuals_within_Q31P <- residuals_within %>% 
                           filter(param == "Q31P")
+
 ICC_Q31P <- residuals_between_Q31P$est / (residuals_between_Q31P$est + residuals_within_Q31P$est)
+
 ICC_Q31P
 ## calculate ICC for Q33P ##
 residuals_between_Q33P <- residuals_between %>% 
@@ -339,9 +342,11 @@ equality_m_results$results$summaries$Parameters
 
 ```
 
+Unsurprisingly, they are the exact same. 
+
 ## 4. Remove covariance LV 2 (OPTIONAL)
 
-By default, Mplus calculates the covariance between Q33P and Q31P at between level. This is specific to Mplus and obviously impacts the DF calculations. 
+By default, Mplus calculates the covariance between Q33P and Q31P at between level. This is specific to Mplus and obviously impacts the DF calculations. We can ask MPlus to avoid to calculate the covariance between Q33P and Q31P.
 
 ```{r, echo=T, message=FALSE, warning=FALSE}
 # modify the previous model such that the covariance between Q33P and Q31P at between level is set to 0 
@@ -381,11 +386,13 @@ equality_m_model_cov_results <- mplusModeler(object = equality_m_model_cov,
 ```
 
 
-```{r, echo=T, message=FALSE, warning=FALSE,results='hide'}
+```{r, echo=T, message=FALSE, warning=FALSE}
 ## extract number of estimated parameters from the model ##
 equality_m_model_cov_results$results$summaries$Parameters
 
 ```
+by setting the covariance to 0, we gained 1 degree of freedom. 
+
 
 ## 6. Manually calculate indirect effect and its SE. 
 
@@ -397,6 +404,7 @@ a <- params %>% filter(BetweenWithin == "Between" & paramHeader == "Q31P.ON") %>
                 select(est) %>% 
                 unlist() %>%
                 array()
+
 b <- params %>% filter(BetweenWithin == "Within" & paramHeader == "Q33P.ON") %>% 
                 select(est) %>% 
                 unlist() %>%
@@ -423,7 +431,7 @@ sqrt(a^2 * sigma_b^2 + b^2 * sigma_a^2)
 
 ## 7. Ask Mplus to calculate indirect effect and SE
 
-You can add to MODELCONSTRAINT any user specified equation. In this case, we are going to add the formula for calculating total and indirect effect. 
+You can add to MODELCONSTRAINT any user specified equation. In this case, we are going to add the formula for calculating the total and the indirect effect. 
 
 ```{r, echo=T, message=FALSE, warning=FALSE}
 
@@ -474,8 +482,7 @@ params %>% filter(param == "IND" | param == "TOTAL")
 ```
 
 
-The reason why the SE of the indirect effect $a \times b$ is different is related to method used to calculate the SE of the user defined parameter estimates (but not the path coefficients) in Mplus. While other software (e.g. Lavaan) employ the Sobel method, Mplus uses the delta method in Model Indirect and also in Model Constraint. The delta method is described in MacKinnon  [-@mackinnon2008multivariate] in the formula 4.27. It includes an added covariance term between the a and b estimates (see second line below 4.27). The main "advantage" of the delta method is that it is less conservative compared to the Sobel test. This is the same reasoning that is sometimes used to justify the use of bootstrapped SE in the calculation of mediation effects. 
-
+The reason why the SE of the indirect effect $a \times b$ is different is related to method used to calculate the SE of the user defined parameter estimates (but not the path coefficients) in Mplus. While other software (e.g. Lavaan) employ the Sobel method, Mplus uses the delta method (in both MODELINDIRECT and MODELCONSTRAINT). The delta method is described in MacKinnon  [-@mackinnon2008multivariate] in the formula 4.27. It includes an added covariance term between the a and b estimates (see second line below 4.27). The main "advantage" of the delta method is that it is less conservative compared to the Sobel test. This is the same reasoning that is sometimes used to justify the use of bootstrapped SE in the calculation of mediation effects. 
 
 ## 9. Add gender to the model (OPTIONAL)
 
@@ -538,6 +545,7 @@ equality_m_g_results<- mplusModeler(object = equality_m_model_g,
 ```{r, echo=T, message=FALSE, warning=FALSE}
 ## display the results ##
 screenreg(equality_m_g_results)
+
 ```
 
 

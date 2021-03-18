@@ -1,0 +1,30 @@
+TITLE:
+Cross-level invariance model;
+DATA:
+FILE = "prog_inv_model.dat";
+ 
+VARIABLE:
+NAMES = Country Q182 Q184 Q185 Q186 Q188; 
+ MISSING=.;
+ USEVARIABLES = Country Q182
+Q184 Q185 Q186 Q188 ;
+CLUSTER = Country;
+ANALYSIS:
+ TYPE = TWOLEVEL; ! multi-level   
+               PROCESSORS = 2;  ! nuber of phisical processor in your machine
+MODEL:
+
+  %WITHIN% 
+  prog_w BY Q182 (l1);
+  prog_w BY Q184 (l2);
+  prog_w BY Q185 (l3);
+  prog_w BY Q186 (l4);
+  prog_w BY Q188 (l5);
+
+  %BETWEEN%
+  prog_b BY Q182 (l1);
+  prog_b BY Q184 (l2);
+  prog_b BY Q185 (l3);
+  prog_b BY Q186 (l4);
+  prog_b BY Q188 (l5);
+  

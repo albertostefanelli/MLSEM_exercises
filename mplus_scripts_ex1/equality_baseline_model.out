@@ -1,0 +1,238 @@
+Mplus VERSION 8.4 (Mac)
+MUTHEN & MUTHEN
+03/17/2021  11:35 AM
+
+INPUT INSTRUCTIONS
+
+  TITLE:
+  Baseline Model Q31P Q33P - ICCs calculation;
+  DATA:
+  FILE = "equality_baseline_model.dat";
+
+  VARIABLE:
+  NAMES = Country Q31P Q33P;
+   MISSING=.;
+   USEVARIABLES = Country Q31P
+  Q33P ;
+  CLUSTER = Country;
+  ANALYSIS:
+  TYPE = TWOLEVEL;
+               PROCESSORS = 2;
+  MODEL:
+
+    %WITHIN%
+    Q31P;
+    Q33P;
+
+    %BETWEEN%
+    Q31P;
+    Q33P;
+
+
+
+
+*** WARNING in MODEL command
+  Variable is uncorrelated with all other variables: Q31P
+*** WARNING in MODEL command
+  Variable is uncorrelated with all other variables: Q33P
+*** WARNING in MODEL command
+  At least one variable is uncorrelated with all other variables in the model.
+  Check that this is what is intended.
+*** WARNING
+  Data set contains cases with missing on all variables.
+  These cases were not included in the analysis.
+  Number of cases with missing on all variables:  196
+   4 WARNING(S) FOUND IN THE INPUT INSTRUCTIONS
+
+
+
+
+Baseline Model Q31P Q33P - ICCs calculation;
+
+SUMMARY OF ANALYSIS
+
+Number of groups                                                 1
+Number of observations                                       67517
+
+Number of dependent variables                                    2
+Number of independent variables                                  0
+Number of continuous latent variables                            0
+
+Observed dependent variables
+
+  Continuous
+   Q31P        Q33P
+
+Variables with special functions
+
+  Cluster variable      COUNTRY
+
+Estimator                                                      MLR
+Information matrix                                        OBSERVED
+Maximum number of iterations                                   100
+Convergence criterion                                    0.100D-05
+Maximum number of EM iterations                                500
+Convergence criteria for the EM algorithm
+  Loglikelihood change                                   0.100D-02
+  Relative loglikelihood change                          0.100D-05
+  Derivative                                             0.100D-03
+Minimum variance                                         0.100D-03
+Maximum number of steepest descent iterations                   20
+Maximum number of iterations for H1                           2000
+Convergence criterion for H1                             0.100D-03
+Optimization algorithm                                         EMA
+
+Input data file(s)
+  equality_baseline_model.dat
+Input data format  FREE
+
+
+SUMMARY OF DATA
+
+     Number of missing data patterns             3
+     Number of clusters                         46
+
+     Average cluster size     1467.761
+
+     Estimated Intraclass Correlations for the Y Variables
+
+                Intraclass              Intraclass
+     Variable  Correlation   Variable  Correlation
+
+     Q31P         0.193      Q33P         0.270
+
+
+
+COVARIANCE COVERAGE OF DATA
+
+Minimum covariance coverage value   0.100
+
+
+     PROPORTION OF DATA PRESENT
+
+
+           Covariance Coverage
+              Q31P          Q33P
+              ________      ________
+ Q31P           0.981
+ Q33P           0.976         0.995
+
+
+
+UNIVARIATE SAMPLE STATISTICS
+
+
+     UNIVARIATE HIGHER-ORDER MOMENT DESCRIPTIVE STATISTICS
+
+         Variable/         Mean/     Skewness/   Minimum/ % with                Percentiles
+        Sample Size      Variance    Kurtosis    Maximum  Min/Max      20%/60%    40%/80%    Median
+
+     Q31P                  2.315       0.317       1.000   19.12%       2.000      2.000      2.000
+           66253.000       0.858      -0.722       4.000   13.00%       2.000      3.000
+     Q33P                  3.112       0.026       1.000   10.19%       2.000      2.000      3.000
+           67190.000       1.710      -1.269       5.000   18.92%       4.000      4.000
+
+
+THE MODEL ESTIMATION TERMINATED NORMALLY
+
+
+
+MODEL FIT INFORMATION
+
+Number of Free Parameters                        6
+
+Loglikelihood
+
+          H0 Value                     -184887.578
+          H0 Scaling Correction Factor     25.1232
+            for MLR
+          H1 Value                     -179918.805
+          H1 Scaling Correction Factor     22.2220
+            for MLR
+
+Information Criteria
+
+          Akaike (AIC)                  369787.155
+          Bayesian (BIC)                369841.876
+          Sample-Size Adjusted BIC      369822.808
+            (n* = (n + 2) / 24)
+
+Chi-Square Test of Model Fit
+
+          Value                            735.121*
+          Degrees of Freedom                     2
+          P-Value                           0.0000
+          Scaling Correction Factor        13.5183
+            for MLR
+
+*   The chi-square value for MLM, MLMV, MLR, ULSMV, WLSM and WLSMV cannot be used
+    for chi-square difference testing in the regular way.  MLM, MLR and WLSM
+    chi-square difference testing is described on the Mplus website.  MLMV, WLSMV,
+    and ULSMV difference testing is done using the DIFFTEST option.
+
+RMSEA (Root Mean Square Error Of Approximation)
+
+          Estimate                           0.074
+
+CFI/TLI
+
+          CFI                                0.000
+          TLI                                0.000
+
+Chi-Square Test of Model Fit for the Baseline Model
+
+          Value                            735.123
+          Degrees of Freedom                     2
+          P-Value                           0.0000
+
+SRMR (Standardized Root Mean Square Residual)
+
+          Value for Within                   0.215
+          Value for Between                  0.414
+
+
+
+MODEL RESULTS
+
+                                                    Two-Tailed
+                    Estimate       S.E.  Est./S.E.    P-Value
+
+Within Level
+
+ Variances
+    Q31P               0.690      0.032     21.788      0.000
+    Q33P               1.251      0.060     20.792      0.000
+
+Between Level
+
+ Means
+    Q31P               2.311      0.060     38.389      0.000
+    Q33P               3.123      0.101     31.069      0.000
+
+ Variances
+    Q31P               0.166      0.028      5.981      0.000
+    Q33P               0.464      0.082      5.669      0.000
+
+
+QUALITY OF NUMERICAL RESULTS
+
+     Condition Number for the Information Matrix              0.251E-05
+       (ratio of smallest to largest eigenvalue)
+
+
+     Beginning Time:  11:35:42
+        Ending Time:  11:35:44
+       Elapsed Time:  00:00:02
+
+
+
+MUTHEN & MUTHEN
+3463 Stoner Ave.
+Los Angeles, CA  90066
+
+Tel: (310) 391-9971
+Fax: (310) 391-8971
+Web: www.StatModel.com
+Support: Support@StatModel.com
+
+Copyright (c) 1998-2019 Muthen & Muthen

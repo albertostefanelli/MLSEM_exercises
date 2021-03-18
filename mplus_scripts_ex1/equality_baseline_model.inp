@@ -1,0 +1,24 @@
+TITLE:
+Baseline Model Q31P Q33P - ICCs calculation;
+DATA:
+FILE = "equality_baseline_model.dat";
+ 
+VARIABLE:
+NAMES = Country Q31P Q33P; 
+ MISSING=.;
+ USEVARIABLES = Country Q31P
+Q33P ;
+CLUSTER = Country;
+ANALYSIS:
+TYPE = TWOLEVEL;
+             PROCESSORS = 2;
+MODEL:
+
+  %WITHIN% 
+  Q31P;
+  Q33P;
+  
+  %BETWEEN%
+  Q31P;
+  Q33P;
+  

@@ -1,0 +1,279 @@
+Mplus VERSION 8.4 (Mac)
+MUTHEN & MUTHEN
+03/18/2021  12:07 PM
+
+INPUT INSTRUCTIONS
+
+  TITLE:
+  Cross-level invariance model;
+  DATA:
+  FILE = "prog_random_model.dat";
+
+  VARIABLE:
+  NAMES = Country Q182 Q184 Q185 Q186 Q188;
+   MISSING=.;
+   USEVARIABLES = Country Q182
+  Q184 Q185 Q186 Q188 ;
+  CLUSTER = Country;
+  ANALYSIS:
+   TYPE = TWOLEVEL RANDOM ; ! multi-level with random effects
+                 ESTIMATOR = BAYES; ! works only with the bayesian estimator
+                 PROCESSORS = 2;  ! nuber of phisical processor in your machine
+  MODEL:
+
+    %WITHIN%
+    s1 | prog_w BY Q182;
+    s2 | prog_w BY Q184;
+    s3 | prog_w BY Q185;
+    s4 | prog_w BY Q186;
+    s5 | prog_w BY Q188;
+
+    %BETWEEN%
+    s1-s5
+    prog_b BY Q182;
+    prog_b BY Q184;
+    prog_b BY Q185;
+    prog_b BY Q186;
+    prog_b BY Q188;
+
+
+
+
+*** WARNING
+  One or more individual-level variables have no variation within a
+  cluster for the following clusters.
+
+     Variable   Cluster IDs with no within-cluster variation
+
+      Q182        12 42
+      Q186        12 20
+
+*** WARNING
+  Data set contains cases with missing on all variables.
+  These cases were not included in the analysis.
+  Number of cases with missing on all variables:  501
+   2 WARNING(S) FOUND IN THE INPUT INSTRUCTIONS
+
+
+
+
+Cross-level invariance model;
+
+SUMMARY OF ANALYSIS
+
+Number of groups                                                 1
+Number of observations                                       70366
+
+Number of dependent variables                                    5
+Number of independent variables                                  0
+Number of continuous latent variables                            7
+
+Observed dependent variables
+
+  Continuous
+   Q182        Q184        Q185        Q186        Q188
+
+Continuous latent variables
+   PROG_W      PROG_B      S1          S2          S3          S4
+   S5
+
+Variables with special functions
+
+  Cluster variable      COUNTRY
+
+Estimator                                                    BAYES
+Specifications for Bayesian Estimation
+  Point estimate                                            MEDIAN
+  Number of Markov chain Monte Carlo (MCMC) chains               2
+  Random seed for the first chain                                0
+  Starting value information                           UNPERTURBED
+  Algorithm used for Markov chain Monte Carlo           GIBBS(PX1)
+  Convergence criterion                                  0.500D-01
+  Maximum number of iterations                               50000
+  K-th iteration used for thinning                               1
+
+Input data file(s)
+  prog_random_model.dat
+Input data format  FREE
+
+
+SUMMARY OF DATA
+
+     Number of clusters                         49
+
+       Size (s)    Cluster ID with Size s
+
+        987        7
+        992        2
+        993        10
+        998        39
+       1003        1
+       1022        26
+       1036        30
+       1119        36
+       1167        24
+       1188        16
+       1193        12
+       1194        11
+       1196        15
+       1200        31 20 35 25 4 42 48 22 29 23
+       1206        44
+       1215        49
+       1223        41
+       1227        37
+       1229        13
+       1237        32
+       1245        40
+       1258        46
+       1313        27
+       1316        21
+       1395        34
+       1490        43
+       1499        19
+       1520        9
+       1526        14
+       1734        28
+       1735        6
+       1791        38
+       1793        3
+       1992        33
+       2059        5
+       2073        17
+       2395        45
+       2578        47
+       3031        8
+       3198        18
+
+
+
+COVARIANCE COVERAGE OF DATA
+
+Minimum covariance coverage value   0.100
+
+     Number of missing data patterns            31
+
+
+     PROPORTION OF DATA PRESENT
+
+
+           Covariance Coverage
+              Q182          Q184          Q185          Q186          Q188
+              ________      ________      ________      ________      ________
+ Q182           0.932
+ Q184           0.924         0.985
+ Q185           0.924         0.979         0.988
+ Q186           0.909         0.938         0.942         0.948
+ Q188           0.907         0.955         0.957         0.923         0.965
+
+
+
+UNIVARIATE SAMPLE STATISTICS
+
+
+     UNIVARIATE HIGHER-ORDER MOMENT DESCRIPTIVE STATISTICS
+
+         Variable/         Mean/     Skewness/   Minimum/ % with                Percentiles
+        Sample Size      Variance    Kurtosis    Maximum  Min/Max      20%/60%    40%/80%    Median
+
+     Q182                  3.655       0.857       1.000   47.40%       1.000      1.000      2.000
+           65604.000      10.331      -0.703      10.000   11.21%       4.000      7.000
+     Q184                  3.143       1.106       1.000   49.39%       1.000      1.000      2.000
+           69300.000       7.603       0.069      10.000    5.10%       3.000      5.000
+     Q185                  4.712       0.288       1.000   27.95%       1.000      4.000      5.000
+           69519.000       9.897      -1.193      10.000   12.44%       5.000      8.000
+     Q186                  4.355       0.477       1.000   36.34%       1.000      2.000      4.000
+           66705.000      11.029      -1.215      10.000   13.76%       5.000      8.000
+     Q188                  3.617       0.835       1.000   45.55%       1.000      1.000      2.000
+           67886.000       9.619      -0.704      10.000    8.31%       4.000      7.000
+
+
+THE MODEL ESTIMATION TERMINATED NORMALLY
+
+     USE THE FBITERATIONS OPTION TO INCREASE THE NUMBER OF ITERATIONS BY A FACTOR
+     OF AT LEAST TWO TO CHECK CONVERGENCE AND THAT THE PSR VALUE DOES NOT INCREASE.
+
+
+
+MODEL FIT INFORMATION
+
+Number of Free Parameters                              31
+
+Information Criteria
+
+          Deviance (DIC)                      1515834.601
+          Estimated Number of Parameters (pD)     460.179
+
+
+
+MODEL RESULTS
+
+                                Posterior  One-Tailed         95% C.I.
+                    Estimate       S.D.      P-Value   Lower 2.5%  Upper 2.5%  Significance
+
+Within Level
+
+ Variances
+    PROG_W             1.201       0.059      0.000       1.078       1.331      *
+
+ Residual Variances
+    Q182               3.829       0.025      0.000       3.777       3.879      *
+    Q184               3.137       0.023      0.000       3.086       3.181      *
+    Q185               3.529       0.029      0.000       3.474       3.587      *
+    Q186               3.272       0.027      0.000       3.217       3.327      *
+    Q188               4.995       0.030      0.000       4.939       5.058      *
+
+Between Level
+
+ PROG_B   BY
+    Q182               1.000       0.000      0.000       1.000       1.000
+    Q184               0.669       0.063      0.000       0.544       0.795      *
+    Q185               0.826       0.069      0.000       0.700       0.972      *
+    Q186               1.089       0.083      0.000       0.917       1.263      *
+    Q188               0.755       0.082      0.000       0.589       0.924      *
+
+ Means
+    S1                 1.435       0.093      0.000       1.249       1.629      *
+    S2                 1.455       0.080      0.000       1.299       1.613      *
+    S3                 1.781       0.075      0.000       1.630       1.928      *
+    S4                 1.660       0.107      0.000       1.461       1.900      *
+    S5                 1.272       0.081      0.000       1.119       1.448      *
+
+ Intercepts
+    Q182               3.646       0.300      0.000       2.997       4.169      *
+    Q184               3.185       0.205      0.000       2.731       3.555      *
+    Q185               4.760       0.242      0.000       4.218       5.157      *
+    Q186               4.368       0.317      0.000       3.653       4.924      *
+    Q188               3.576       0.237      0.000       3.076       3.984      *
+
+ Variances
+    PROG_B             3.356       0.944      0.000       2.150       5.970      *
+    S1                 0.378       0.098      0.000       0.242       0.616      *
+    S2                 0.257       0.062      0.000       0.170       0.418      *
+    S3                 0.180       0.044      0.000       0.119       0.289      *
+    S4                 0.399       0.095      0.000       0.255       0.642      *
+    S5                 0.220       0.053      0.000       0.151       0.346      *
+
+ Residual Variances
+    Q182               0.571       0.158      0.000       0.352       0.943      *
+    Q184               0.309       0.086      0.000       0.186       0.520      *
+    Q185               0.257       0.083      0.000       0.146       0.457      *
+    Q186               0.272       0.123      0.000       0.096       0.584      *
+    Q188               0.633       0.158      0.000       0.407       1.021      *
+
+
+     Beginning Time:  12:07:26
+        Ending Time:  12:08:40
+       Elapsed Time:  00:01:14
+
+
+
+MUTHEN & MUTHEN
+3463 Stoner Ave.
+Los Angeles, CA  90066
+
+Tel: (310) 391-9971
+Fax: (310) 391-8971
+Web: www.StatModel.com
+Support: Support@StatModel.com
+
+Copyright (c) 1998-2019 Muthen & Muthen

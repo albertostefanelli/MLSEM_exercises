@@ -1,0 +1,31 @@
+TITLE:
+Baseline invariance model estimated with bayes;
+DATA:
+FILE = "prog_c_bayes_model.dat";
+ 
+VARIABLE:
+NAMES = Country Q182 Q184 Q185 Q186 Q188; 
+ MISSING=.;
+ USEVARIABLES = Country Q182
+Q184 Q185 Q186 Q188 ;
+CLUSTER = Country;
+ANALYSIS:
+ TYPE = TWOLEVEL; 
+               ESTIMATOR = BAYES;
+               PROCESSORS = 2;  ! nuber of phisical processor in your machine
+MODEL:
+
+  %WITHIN% 
+  prog_w BY Q182;
+  prog_w BY Q184;
+  prog_w BY Q185;
+  prog_w BY Q186;
+  prog_w BY Q188;
+
+  %BETWEEN%
+  prog_b BY Q182;
+  prog_b BY Q184;
+  prog_b BY Q185;
+  prog_b BY Q186;
+  prog_b BY Q188;
+  

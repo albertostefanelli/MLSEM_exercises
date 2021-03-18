@@ -1,0 +1,34 @@
+TITLE:
+Configural model alternative specification ;
+DATA:
+FILE = "prog_c_alt_model.dat";
+ 
+VARIABLE:
+NAMES = Country Q182 Q184 Q185 Q186 Q188; 
+ MISSING=.;
+ USEVARIABLES = Country Q182
+Q184 Q185 Q186 Q188 ;
+CLUSTER = Country;
+ANALYSIS:
+ TYPE = TWOLEVEL; ! multi-level   
+               PROCESSORS = 2;  ! nuber of phisical processor in your machine
+MODEL:
+
+  %WITHIN% 
+  prog_w BY Q182* (lw1); ! free loading 
+  prog_w BY Q184  (lw2);
+  prog_w BY Q185  (lw3);
+  prog_w BY Q186  (lw4);
+  prog_w BY Q188  (lw5);
+  prog_w@1;   ! variance of the factor 
+  [prog_w@0]; ! mean of the factor 
+
+  %BETWEEN%
+  prog_b BY Q182* (lb1); ! free loading 
+  prog_b BY Q184  (lb2);
+  prog_b BY Q185  (lb3);
+  prog_b BY Q186  (lb4);
+  prog_b BY Q188  (lb5);
+  prog_b@1;   ! variance of the factor 
+  [prog_b@0]; ! mean of the factor 
+  

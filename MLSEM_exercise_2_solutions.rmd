@@ -123,6 +123,8 @@ library("tidySEM")
 
 # Null model and ICCs
 
+As we did in the previous lab, we run a null-model without (1) any substantive predictors and (2) between-level only variables. 
+
 ```{r, echo=T, message=FALSE, warning=FALSE}
 # read and prepare the data ##
 wvs7 <- read_csv("https://github.com/albertostefanelli/MLSEM_exercises/raw/master/wvs7_ex_2.csv")
@@ -165,11 +167,19 @@ prog_null_results <- mplusModeler(object = prog_null_model,           # the mode
                                    hashfilename = FALSE               # add a hash of the raw data
                        )
 
+
+```
+
+
+```{r, echo=T, message=FALSE, warning=FALSE}
+
 prog_null_results$results$data_summary$ICC
 
 ```
 
 # Configural model with same factor structure across the two levels
+
+In the configural model the factor structure is the same across the two levels but the loadings are not constrained to be the same. We can fit this model in Mplus specifying different labels for each of the estimated factor loadings. 
 
 ```{r, echo=T, message=FALSE, warning=FALSE}
 
@@ -216,6 +226,8 @@ prog_c_results <- mplusModeler(object = prog_c_model,              # the model s
 
 ```
 
+We can extract the fit indices directly from the summaries section returned by the mplusModeler function.
+
 ```{r, echo=T, message=FALSE, warning=FALSE}
 
 prog_c_results$results$summaries$CFI
@@ -228,6 +240,8 @@ prog_c_results$results$summaries$RMSEA_Estimate
 ```
 
 # Configural model alternative specification (OPTIONAL)
+
+Instead of fixing the first factor loading to 1 to scale the latent variable, we can fix its variance to 1. The two models are statistically equivalent. 
 
 ```{r, echo=T, message=FALSE, warning=FALSE}
 
@@ -279,6 +293,9 @@ prog_c_alt_results <- mplusModeler(object = prog_c_alt_model,              # the
 
 ```
 
+
+We can extract the loadings or the witin and between latent factor directly from the mplusModeler.
+
 ```{r, echo=T, message=FALSE, warning=FALSE}
 
 params <- prog_c_alt_results$results$parameters$unstandardized
@@ -300,7 +317,11 @@ cbind(loadings_within, loadings_between)
 
 # Partially saturated model fit
 
+We can fit a partially saturated model to assess where the model misfit comes from.
+
 ## Within level
+
+First, we fit a saturated within model where all the manifest indicators are correlated at the within level. We simultaneously estimate a between level latent factor as done before. Since the within part of the model is saturated, any misfit observed in the model comes from the **between level** latent factor. 
 
 ```{r, echo=T, message=FALSE, warning=FALSE}
 
@@ -345,6 +366,8 @@ prog_sat_w_results <- mplusModeler(object = prog_sat_w_model,
 ```
 
 ## Between level
+
+By contrast, we fit saturated between model where all the manifest indicators are correlated at the between level. In this case, any misfit observed in the model comes from the **within level** latent factor. 
 
 ```{r, echo=T, message=FALSE, warning=FALSE}
 
@@ -391,6 +414,7 @@ prog_sat_b_results <- mplusModeler(object = prog_sat_b_model,
 
 ```
 
+Most of the misfit of the global model comes from the within part of the model. We can see this by comparing the 3 models. By looking at the *Saturated Within* model we can see that the fit indices are relatively high. This already suggests that the biggest discrepancies between the model implied and observed covariance matrix are likely to be at the within level. By contrast, the *Saturated Between* model shows comparatively worst fit (especially in term of TLI). Since we have perfect fit at the between level, this confirms that most of the most misfit is at the within level. 
 
 ```{r, echo=T, message=FALSE, warning=FALSE}
 
@@ -431,6 +455,7 @@ comparison_df
 
 # Cross-level invariance
 
+We can test for cross-level invariance by fixing the loadings of our latent construct to be the same at the within and between level. We do so by using the exact same label names for each lambda at te within and between level. 
 
 ```{r, echo=T, message=FALSE, warning=FALSE}
 
@@ -477,7 +502,7 @@ prog_inv_results <- mplusModeler(object = prog_inv_model,
 
 ```
 
-
+Even without running a LR test, we can see that the two models are quite similar. However, we note a reduction in the CFI that might indicate that some of the loadings are estimated to be different between the two levels.  
 
 ```{r, echo=T, message=FALSE, warning=FALSE}
 
@@ -511,7 +536,7 @@ comparison_df
 
 # Random loadings model
 
-
+We have seen that most of the misfit comes from the within-part of the model. This implies that in some countries, our factor loadings deviates from grand mean. We can test if a random loadings model would improve our model fit by allowing the loadings to differ between countries.  
 
 ```{r, echo=T, message=FALSE, warning=FALSE}
 
@@ -558,6 +583,8 @@ prog_random_results <- mplusModeler(object = prog_random_model,
 )
 
 ```
+
+Although we cannot get standardized estimates, we can see that variances of the loadings across our countries is relatively high.  
 
 ```{r, echo=T, message=FALSE, warning=FALSE}
 params <- prog_random_results$results$parameters$unstandardized

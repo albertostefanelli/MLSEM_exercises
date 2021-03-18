@@ -1,0 +1,23 @@
+TITLE:
+Null model Q182 Q184, Q185, Q186, Q188;
+DATA:
+FILE = "prog_null_model.dat";
+ 
+VARIABLE:
+NAMES = Country Q182 Q184 Q185 Q186 Q188; 
+ MISSING=.;
+ USEVARIABLES = Country Q182
+Q184 Q185 Q186 Q188 ;
+CLUSTER = Country;
+ANALYSIS:
+ TYPE = TWOLEVEL; ! multi-level   
+               PROCESSORS = 2;  ! nuber of phisical processor in your machine
+MODEL:
+
+  %WITHIN% 
+  Q182 Q184 Q185 Q186 Q188;
+
+  %BETWEEN%
+  Q182 Q184 Q185 Q186 Q188;
+
+  

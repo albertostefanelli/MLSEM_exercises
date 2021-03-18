@@ -1,0 +1,32 @@
+TITLE:
+Cross-level invariance model;
+DATA:
+FILE = "prog_random_model.dat";
+ 
+VARIABLE:
+NAMES = Country Q182 Q184 Q185 Q186 Q188; 
+ MISSING=.;
+ USEVARIABLES = Country Q182
+Q184 Q185 Q186 Q188 ;
+CLUSTER = Country;
+ANALYSIS:
+ TYPE = TWOLEVEL RANDOM ; ! multi-level with random effects  
+               ESTIMATOR = BAYES; ! works only with the bayesian estimator
+               PROCESSORS = 2;  ! nuber of phisical processor in your machine
+MODEL:
+
+  %WITHIN% 
+  s1 | prog_w BY Q182;
+  s2 | prog_w BY Q184;
+  s3 | prog_w BY Q185;
+  s4 | prog_w BY Q186;
+  s5 | prog_w BY Q188;
+
+  %BETWEEN%
+  s1-s5 
+  prog_b BY Q182;
+  prog_b BY Q184;
+  prog_b BY Q185;
+  prog_b BY Q186;
+  prog_b BY Q188;
+  
