@@ -197,9 +197,7 @@
       <li><a href="#dataset">Dataset</a></li>
       <li><a href="#environment-preparation">Environment preparation</a></li>
       <li><a href="#exercise-instructions">Exercise instructions</a></li>
-      <li><a href="#null-model-and-iccs">Null model and ICCs</a></li>
       <li><a href="#configural-model-with-same-factor-structure-across-the-two-levels">Configural model with same factor structure across the two levels</a></li>
-      <li><a href="#configural-model-alternative-specification-optional">Configural model alternative specification (OPTIONAL)</a></li>
       <li><a href="#partially-saturated-model-fit">Partially saturated model fit</a>
       <ul>
       <li><a href="#within-level">Within level</a></li>
@@ -207,6 +205,8 @@
       </ul></li>
       <li><a href="#cross-level-invariance">Cross-level invariance</a></li>
       <li><a href="#random-loadings-model">Random loadings model</a></li>
+      <li><a href="#null-model-and-iccs-optional">Null model and ICCs (Optional)</a></li>
+      <li><a href="#configural-model-alternative-specification-optional">Configural model alternative specification (OPTIONAL)</a></li>
       <li><a href="#references">References</a></li>
       </ul>
     </div>
@@ -296,18 +296,19 @@ pre:not([class]) {
 </div>
 <div id="exercise-instructions" class="section level1">
 <h1>Exercise instructions</h1>
+<p>The input example are in square brackets. You can take a look at the .inp on <a href="https://github.com/albertostefanelli/MLSEM_exercises" class="uri">https://github.com/albertostefanelli/MLSEM_exercises</a> if you need some tips on how to fit the models in Mplus.</p>
 <ol style="list-style-type: decimal">
-<li>Assess and interpret the ICCs of the progressive values items (Q184, Q185, Q186, Q188) by fitting a null model (no substantive covariates of the outcome at either level of the model).</li>
-<li>Fit a unidimensional two-levels factor model measuring attitudes towards progressive values (Q184, Q185, Q186, Q188) with the same factor structure on both levels. Fix one of the loadings for a latent variable to 1, and allow the factor variance to be estimated.</li>
-<li>Alternative specification: allow all factor loadings to be estimated, and fix factor variances to 1. <strong>(OPTIONAL)</strong></li>
-<li>Perform a partially saturated model fit evaluation to assess at which level there is the highest lack of fit.</li>
-<li>Test for cross-level invariance by imposing equality constraints on the estimated factor loadings at both level.</li>
-<li>Fit a model with Random Factor Loadings. Interpret the results and compare to the previous model using different in Deviance (DIC).</li>
+<li>Fit a unidimensional two-levels factor model measuring attitudes towards progressive values (Q184, Q185, Q186, Q188) with the same factor structure on both levels. Fix one of the loadings for a latent variable to 1, and allow the factor variance to be estimated. [prog_c_model.inp]</li>
+<li>Perform a partially saturated model fit evaluation to assess at which level there is the highest lack of fit. You can use the partially saturated model example prog_sat_w_model.inp [prog_sat_w_model.inp, prog_sat_b_model.inp]</li>
+<li>Test for cross-level invariance by imposing equality constraints on the estimated factor loadings at both level. [prog_inv_model.inp]</li>
+<li>Fit a model with Random Factor Loadings. Interpret the results and compare to the previous model using different in Deviance (DIC). [prog_random_model.inp]</li>
+<li>Alternative specification for configural model: allow all factor loadings to be estimated, and fix factor variances to 1. <strong>(OPTIONAL)</strong> [prog_c_alt_model.inp]</li>
+<li>Assess and interpret the ICCs of the progressive values items (Q184, Q185, Q186, Q188) by fitting a null model (no substantive covariates of the outcome at either level of the model). <strong>(OPTIONAL)</strong> [prog_null_model.inp]</li>
 </ol>
 </div>
-<div id="null-model-and-iccs" class="section level1">
-<h1>Null model and ICCs</h1>
-<p>As we did in the previous lab, we run a null-model without (1) any substantive predictors and (2) between-level only variables.</p>
+<div id="configural-model-with-same-factor-structure-across-the-two-levels" class="section level1">
+<h1>Configural model with same factor structure across the two levels</h1>
+<p>In the configural model the factor structure is the same across the two levels but the loadings are not constrained to be the same. We can fit this model in Mplus specifying different labels for each of the estimated factor loadings.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># read and prepare the data ##</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>wvs7 <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;https://github.com/albertostefanelli/MLSEM_exercises/raw/master/wvs7_ex_2.csv&quot;</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># transform dummy as factor as required by MplusAutomation  </span></span>
@@ -316,155 +317,53 @@ pre:not([class]) {
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># remove feamle (need it later)</span></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>wvs7_f_m <span class="ot">&lt;-</span> wvs7_f <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>Q275,<span class="sc">-</span>Q172P)</span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># write the Mplus model</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>prog_null_model <span class="ot">&lt;-</span> <span class="fu">mplusObject</span>(</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">TITLE =</span> <span class="st">&quot;Null model Q182 Q184, Q185, Q186, Q188;&quot;</span>,</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">VARIABLE =</span> <span class="fu">paste</span>(<span class="fu">paste</span>(<span class="fu">strwrap</span>(<span class="fu">paste</span>(<span class="st">&quot;USEVARIABLES = &quot;</span>,<span class="fu">paste</span>(<span class="fu">names</span>(wvs7_f_m), <span class="at">collapse=</span><span class="st">&quot; &quot;</span>),</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>                                       <span class="st">&quot;;&quot;</span>), <span class="dv">30</span>), <span class="at">collapse =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>),</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CLUSTER = Country;&quot;</span>,    <span class="co"># grouping variable </span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">sep =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">ANALYSIS =</span> <span class="st">&quot; TYPE = TWOLEVEL; ! multi-level   </span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="st">               PROCESSORS = 2;  ! nuber of phisical processor in your machine&quot;</span>, </span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">MODEL =</span> <span class="st">&quot;</span></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="st">  %WITHIN% </span></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="st">  Q182 Q184 Q185 Q186 Q188;</span></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="st">  %BETWEEN%</span></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="st">  Q182 Q184 Q185 Q186 Q188;</span></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="st">  &quot;</span>,</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">rdata =</span> wvs7_f_m</span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># write the Mplus model</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>prog_c_model <span class="ot">&lt;-</span> <span class="fu">mplusObject</span>(</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">TITLE =</span> <span class="st">&quot;Configural model;&quot;</span>,</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">VARIABLE =</span> <span class="fu">paste</span>(<span class="fu">paste</span>(<span class="fu">strwrap</span>(<span class="fu">paste</span>(<span class="st">&quot;USEVARIABLES = &quot;</span>,<span class="fu">paste</span>(<span class="fu">names</span>(wvs7_f_m), <span class="at">collapse=</span><span class="st">&quot; &quot;</span>),</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>                                       <span class="st">&quot;;&quot;</span>), <span class="dv">30</span>), <span class="at">collapse =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>),</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CLUSTER = Country;&quot;</span>,    <span class="co"># grouping variable </span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">sep =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">ANALYSIS =</span> <span class="st">&quot; TYPE = TWOLEVEL; ! multi-level   </span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="st">               PROCESSORS = 2;  ! nuber of phisical processor in your machine&quot;</span>, </span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">MODEL =</span> <span class="st">&quot;</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="st">  %WITHIN% </span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q182 (lw1);</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q184 (lw2);</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q185 (lw3);</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q186 (lw4);</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q188 (lw5);</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="st">  %BETWEEN%</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q182 (lb1);</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q184 (lb2);</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q185 (lb3);</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q186 (lb4);</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q188 (lb5);</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a><span class="st">  &quot;</span>,</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">rdata =</span> wvs7_f_m</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Run the model ##</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>prog_null_results <span class="ot">&lt;-</span> <span class="fu">mplusModeler</span>(<span class="at">object =</span> prog_null_model,           <span class="co"># the model syntax</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">modelout =</span> <span class="st">&quot;prog_null_model.inp&quot;</span>,  <span class="co"># output file </span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">run =</span> 1L,                          <span class="co"># how many models should be run (1)</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">hashfilename =</span> <span class="cn">FALSE</span>               <span class="co"># add a hash of the raw data</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>                       )</span></code></pre></div>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>prog_null_results<span class="sc">$</span>results<span class="sc">$</span>data_summary<span class="sc">$</span>ICC</span></code></pre></div>
-<pre><code>  variable   ICC
-1     Q182 0.350
-2     Q184 0.221
-3     Q185 0.242
-4     Q186 0.359
-5     Q188 0.245</code></pre>
-</div>
-<div id="configural-model-with-same-factor-structure-across-the-two-levels" class="section level1">
-<h1>Configural model with same factor structure across the two levels</h1>
-<p>In the configural model the factor structure is the same across the two levels but the loadings are not constrained to be the same. We can fit this model in Mplus specifying different labels for each of the estimated factor loadings.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># write the Mplus model</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>prog_c_model <span class="ot">&lt;-</span> <span class="fu">mplusObject</span>(</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">TITLE =</span> <span class="st">&quot;Configural model;&quot;</span>,</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">VARIABLE =</span> <span class="fu">paste</span>(<span class="fu">paste</span>(<span class="fu">strwrap</span>(<span class="fu">paste</span>(<span class="st">&quot;USEVARIABLES = &quot;</span>,<span class="fu">paste</span>(<span class="fu">names</span>(wvs7_f_m), <span class="at">collapse=</span><span class="st">&quot; &quot;</span>),</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>                                       <span class="st">&quot;;&quot;</span>), <span class="dv">30</span>), <span class="at">collapse =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>),</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CLUSTER = Country;&quot;</span>,    <span class="co"># grouping variable </span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">sep =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">ANALYSIS =</span> <span class="st">&quot; TYPE = TWOLEVEL; ! multi-level   </span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="st">               PROCESSORS = 2;  ! nuber of phisical processor in your machine&quot;</span>, </span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">MODEL =</span> <span class="st">&quot;</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="st">  %WITHIN% </span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q182 (lw1);</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q184 (lw2);</span></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q185 (lw3);</span></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q186 (lw4);</span></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q188 (lw5);</span></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="st">  %BETWEEN%</span></span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q182 (lb1);</span></span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q184 (lb2);</span></span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q185 (lb3);</span></span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q186 (lb4);</span></span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q188 (lb5);</span></span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a><span class="st">  &quot;</span>,</span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">rdata =</span> wvs7_f_m</span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Run the model ##</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>prog_c_results <span class="ot">&lt;-</span> <span class="fu">mplusModeler</span>(<span class="at">object =</span> prog_c_model,              <span class="co"># the model syntax</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">modelout =</span> <span class="st">&quot;prog_c_model.inp&quot;</span>,  <span class="co"># output file </span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">run =</span> 1L,                       <span class="co"># how many models should be run (1)</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">hashfilename =</span> <span class="cn">FALSE</span>            <span class="co"># add a hash of the raw data</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>                                                      )</span></code></pre></div>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>prog_c_results <span class="ot">&lt;-</span> <span class="fu">mplusModeler</span>(<span class="at">object =</span> prog_c_model,              <span class="co"># the model syntax</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">modelout =</span> <span class="st">&quot;prog_c_model.inp&quot;</span>,  <span class="co"># output file </span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">run =</span> 1L,                       <span class="co"># how many models should be run (1)</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">hashfilename =</span> <span class="cn">FALSE</span>,              <span class="co"># add a hash of the raw data</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">Mplus_command =</span>  <span class="st">&quot;/Applications/MplusDemo/mpdemo&quot;</span> </span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>                                                      )</span></code></pre></div>
 <p>We can extract the fit indices directly from the summaries section returned by the mplusModeler function.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>CFI</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>CFI</span></code></pre></div>
 <pre><code>[1] 0.96</code></pre>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>TLI</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>TLI</span></code></pre></div>
 <pre><code>[1] 0.92</code></pre>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>AIC</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>AIC</span></code></pre></div>
 <pre><code>[1] 1530302</code></pre>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>BIC</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>BIC</span></code></pre></div>
 <pre><code>[1] 1530531</code></pre>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>RMSEA_Estimate</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>RMSEA_Estimate</span></code></pre></div>
 <pre><code>[1] 0.017</code></pre>
-</div>
-<div id="configural-model-alternative-specification-optional" class="section level1">
-<h1>Configural model alternative specification (OPTIONAL)</h1>
-<p>Instead of fixing the first factor loading to 1 to scale the latent variable, we can fix its variance to 1. The two models are statistically equivalent.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># write the Mplus model</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>prog_c_alt_model <span class="ot">&lt;-</span> <span class="fu">mplusObject</span>(</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">TITLE =</span> <span class="st">&quot;Configural model alternative specification ;&quot;</span>,</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">VARIABLE =</span> <span class="fu">paste</span>(<span class="fu">paste</span>(<span class="fu">strwrap</span>(<span class="fu">paste</span>(<span class="st">&quot;USEVARIABLES = &quot;</span>,<span class="fu">paste</span>(<span class="fu">names</span>(wvs7_f_m), <span class="at">collapse=</span><span class="st">&quot; &quot;</span>),</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>                                       <span class="st">&quot;;&quot;</span>), <span class="dv">30</span>), <span class="at">collapse =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>),</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CLUSTER = Country;&quot;</span>,    <span class="co"># grouping variable </span></span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">sep =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span></span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">ANALYSIS =</span> <span class="st">&quot; TYPE = TWOLEVEL; ! multi-level   </span></span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="st">               PROCESSORS = 2;  ! nuber of phisical processor in your machine&quot;</span>, </span>
-<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">MODEL =</span> <span class="st">&quot;</span></span>
-<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a><span class="st">  %WITHIN% </span></span>
-<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q182* (lw1); ! free loading </span></span>
-<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q184  (lw2);</span></span>
-<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q185  (lw3);</span></span>
-<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q186  (lw4);</span></span>
-<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q188  (lw5);</span></span>
-<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w@1;   ! variance of the factor </span></span>
-<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a><span class="st">  [prog_w@0]; ! mean of the factor </span></span>
-<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a><span class="st">  %BETWEEN%</span></span>
-<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q182* (lb1); ! free loading </span></span>
-<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q184  (lb2);</span></span>
-<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q185  (lb3);</span></span>
-<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q186  (lb4);</span></span>
-<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q188  (lb5);</span></span>
-<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b@1;   ! variance of the factor </span></span>
-<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a><span class="st">  [prog_b@0]; ! mean of the factor </span></span>
-<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a><span class="st">  &quot;</span>,</span>
-<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">rdata =</span> wvs7_f_m</span>
-<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Run the model ##</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>prog_c_alt_results <span class="ot">&lt;-</span> <span class="fu">mplusModeler</span>(<span class="at">object =</span> prog_c_alt_model,              <span class="co"># the model syntax</span></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">modelout =</span> <span class="st">&quot;prog_c_alt_model.inp&quot;</span>,  <span class="co"># output file </span></span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">run =</span> 1L,                       <span class="co"># how many models should be run (1)</span></span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">hashfilename =</span> <span class="cn">FALSE</span>            <span class="co"># add a hash of the raw data</span></span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>                                                      )</span></code></pre></div>
-<p>We can extract the loadings or the witin and between latent factor directly from the mplusModeler.</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>params <span class="ot">&lt;-</span> prog_c_alt_results<span class="sc">$</span>results<span class="sc">$</span>parameters<span class="sc">$</span>unstandardized</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="do">## loadings ## </span></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>loadings_within <span class="ot">&lt;-</span> params <span class="sc">%&gt;%</span> <span class="fu">filter</span>(paramHeader <span class="sc">==</span> <span class="st">&quot;PROG_W.BY&quot;</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">select</span>(est) <span class="sc">%&gt;%</span> </span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">unlist</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">array</span>()</span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>loadings_between <span class="ot">&lt;-</span> params <span class="sc">%&gt;%</span> <span class="fu">filter</span>(paramHeader <span class="sc">==</span> <span class="st">&quot;PROG_B.BY&quot;</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">select</span>(est) <span class="sc">%&gt;%</span> </span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">unlist</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">array</span>()</span>
-<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a><span class="fu">cbind</span>(loadings_within, loadings_between)</span></code></pre></div>
-<pre><code>     loadings_within loadings_between
-[1,]           1.624            1.746
-[2,]           1.660            1.179
-[3,]           1.928            1.487
-[4,]           1.859            1.918
-[5,]           1.500            1.321</code></pre>
 </div>
 <div id="partially-saturated-model-fit" class="section level1">
 <h1>Partially saturated model fit</h1>
@@ -472,107 +371,107 @@ pre:not([class]) {
 <div id="within-level" class="section level2">
 <h2>Within level</h2>
 <p>First, we fit a saturated within model where all the manifest indicators are correlated at the within level. We simultaneously estimate a between level latent factor as done before. Since the within part of the model is saturated, any misfit observed in the model comes from the <strong>between level</strong> latent factor.</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># write the Mplus model</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>prog_sat_w_model <span class="ot">&lt;-</span> <span class="fu">mplusObject</span>(</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">TITLE =</span> <span class="st">&quot;Partially saturated model within level ;&quot;</span>,</span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">VARIABLE =</span> <span class="fu">paste</span>(<span class="fu">paste</span>(<span class="fu">strwrap</span>(<span class="fu">paste</span>(<span class="st">&quot;USEVARIABLES = &quot;</span>,<span class="fu">paste</span>(<span class="fu">names</span>(wvs7_f_m), <span class="at">collapse=</span><span class="st">&quot; &quot;</span>),</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>                                       <span class="st">&quot;;&quot;</span>), <span class="dv">30</span>), <span class="at">collapse =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>),</span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CLUSTER = Country;&quot;</span>,    <span class="co"># grouping variable </span></span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">sep =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span></span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">ANALYSIS =</span> <span class="st">&quot; TYPE = TWOLEVEL; ! multi-level   </span></span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="st">               PROCESSORS = 2;  ! nuber of phisical processor in your machine&quot;</span>, </span>
-<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">MODEL =</span> <span class="st">&quot;</span></span>
-<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="st">  %WITHIN% </span></span>
-<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a><span class="st">  Q182 Q184 Q185 Q186 Q188 WITH </span></span>
-<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a><span class="st">  Q182 Q184 Q185 Q186 Q188;</span></span>
-<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a><span class="st">  %BETWEEN%</span></span>
-<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q182 (lb1);</span></span>
-<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q184 (lb2);</span></span>
-<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q185 (lb3);</span></span>
-<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q186 (lb4);</span></span>
-<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q188 (lb5);</span></span>
-<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a><span class="st">  &quot;</span>,</span>
-<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">rdata =</span> wvs7_f_m</span>
-<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Run the model ##</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>prog_sat_w_results <span class="ot">&lt;-</span> <span class="fu">mplusModeler</span>(<span class="at">object =</span> prog_sat_w_model,             </span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">modelout =</span> <span class="st">&quot;prog_sat_w_model.inp&quot;</span>,  </span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">run =</span> 1L,                       </span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">hashfilename =</span> <span class="cn">FALSE</span>            </span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>                                                      )</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># write the Mplus model</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>prog_sat_w_model <span class="ot">&lt;-</span> <span class="fu">mplusObject</span>(</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">TITLE =</span> <span class="st">&quot;Partially saturated model within level ;&quot;</span>,</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">VARIABLE =</span> <span class="fu">paste</span>(<span class="fu">paste</span>(<span class="fu">strwrap</span>(<span class="fu">paste</span>(<span class="st">&quot;USEVARIABLES = &quot;</span>,<span class="fu">paste</span>(<span class="fu">names</span>(wvs7_f_m), <span class="at">collapse=</span><span class="st">&quot; &quot;</span>),</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>                                       <span class="st">&quot;;&quot;</span>), <span class="dv">30</span>), <span class="at">collapse =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>),</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CLUSTER = Country;&quot;</span>,    <span class="co"># grouping variable </span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">sep =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">ANALYSIS =</span> <span class="st">&quot; TYPE = TWOLEVEL; ! multi-level   </span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="st">               PROCESSORS = 2;  ! nuber of phisical processor in your machine&quot;</span>, </span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">MODEL =</span> <span class="st">&quot;</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="st">  %WITHIN% </span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="st">  Q182 Q184 Q185 Q186 Q188 WITH </span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="st">  Q182 Q184 Q185 Q186 Q188;</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="st">  %BETWEEN%</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q182 (lb1);</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q184 (lb2);</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q185 (lb3);</span></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q186 (lb4);</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q188 (lb5);</span></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a><span class="st">  &quot;</span>,</span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">rdata =</span> wvs7_f_m</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Run the model ##</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>prog_sat_w_results <span class="ot">&lt;-</span> <span class="fu">mplusModeler</span>(<span class="at">object =</span> prog_sat_w_model,             </span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">modelout =</span> <span class="st">&quot;prog_sat_w_model.inp&quot;</span>,  </span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">run =</span> 1L,                       </span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">hashfilename =</span> <span class="cn">FALSE</span>,            </span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">Mplus_command =</span>  <span class="st">&quot;/Applications/MplusDemo/mpdemo&quot;</span> </span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>                                                      )</span></code></pre></div>
 </div>
 <div id="between-level" class="section level2">
 <h2>Between level</h2>
 <p>By contrast, we fit saturated between model where all the manifest indicators are correlated at the between level. In this case, any misfit observed in the model comes from the <strong>within level</strong> latent factor.</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># write the Mplus model</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>prog_sat_b_model <span class="ot">&lt;-</span> <span class="fu">mplusObject</span>(</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">TITLE =</span> <span class="st">&quot;Partially saturated model between level ;&quot;</span>,</span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">VARIABLE =</span> <span class="fu">paste</span>(<span class="fu">paste</span>(<span class="fu">strwrap</span>(<span class="fu">paste</span>(<span class="st">&quot;USEVARIABLES = &quot;</span>,<span class="fu">paste</span>(<span class="fu">names</span>(wvs7_f_m), <span class="at">collapse=</span><span class="st">&quot; &quot;</span>),</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>                                       <span class="st">&quot;;&quot;</span>), <span class="dv">30</span>), <span class="at">collapse =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>),</span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CLUSTER = Country;&quot;</span>,    <span class="co"># grouping variable </span></span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">sep =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span></span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">ANALYSIS =</span> <span class="st">&quot; TYPE = TWOLEVEL; ! multi-level   </span></span>
-<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="st">               PROCESSORS = 2;  ! nuber of phisical processor in your machine&quot;</span>, </span>
-<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">MODEL =</span> <span class="st">&quot;</span></span>
-<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a><span class="st">  %WITHIN% </span></span>
-<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q182 (lw1);</span></span>
-<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q184 (lw2);</span></span>
-<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q185 (lw3);</span></span>
-<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q186 (lw4);</span></span>
-<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q188 (lw5);</span></span>
-<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a><span class="st">  %BETWEEN%</span></span>
-<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a><span class="st">  Q182 Q184 Q185 Q186 Q188 WITH </span></span>
-<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a><span class="st">  Q182 Q184 Q185 Q186 Q188;</span></span>
-<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a><span class="st">  &quot;</span>,</span>
-<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">rdata =</span> wvs7_f_m</span>
-<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Run the model ##</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>prog_sat_b_results <span class="ot">&lt;-</span> <span class="fu">mplusModeler</span>(<span class="at">object =</span> prog_sat_b_model,             </span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">modelout =</span> <span class="st">&quot;prog_sat_b_model.inp&quot;</span>,  </span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">run =</span> 1L,                       </span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">hashfilename =</span> <span class="cn">FALSE</span>            </span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>                                                      )</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># write the Mplus model</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>prog_sat_b_model <span class="ot">&lt;-</span> <span class="fu">mplusObject</span>(</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">TITLE =</span> <span class="st">&quot;Partially saturated model between level ;&quot;</span>,</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">VARIABLE =</span> <span class="fu">paste</span>(<span class="fu">paste</span>(<span class="fu">strwrap</span>(<span class="fu">paste</span>(<span class="st">&quot;USEVARIABLES = &quot;</span>,<span class="fu">paste</span>(<span class="fu">names</span>(wvs7_f_m), <span class="at">collapse=</span><span class="st">&quot; &quot;</span>),</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>                                       <span class="st">&quot;;&quot;</span>), <span class="dv">30</span>), <span class="at">collapse =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>),</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CLUSTER = Country;&quot;</span>,    <span class="co"># grouping variable </span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">sep =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">ANALYSIS =</span> <span class="st">&quot; TYPE = TWOLEVEL; ! multi-level   </span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="st">               PROCESSORS = 2;  ! nuber of phisical processor in your machine&quot;</span>, </span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">MODEL =</span> <span class="st">&quot;</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="st">  %WITHIN% </span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q182 (lw1);</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q184 (lw2);</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q185 (lw3);</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q186 (lw4);</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q188 (lw5);</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a><span class="st">  %BETWEEN%</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a><span class="st">  Q182 Q184 Q185 Q186 Q188 WITH </span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a><span class="st">  Q182 Q184 Q185 Q186 Q188;</span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a><span class="st">  &quot;</span>,</span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">rdata =</span> wvs7_f_m</span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Run the model ##</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>prog_sat_b_results <span class="ot">&lt;-</span> <span class="fu">mplusModeler</span>(<span class="at">object =</span> prog_sat_b_model,             </span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">modelout =</span> <span class="st">&quot;prog_sat_b_model.inp&quot;</span>,  </span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">run =</span> 1L,                       </span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">hashfilename =</span> <span class="cn">FALSE</span>,              <span class="co"># add a hash of the raw data</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">Mplus_command =</span>  <span class="st">&quot;/Applications/MplusDemo/mpdemo&quot;</span> </span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>                                                      )</span></code></pre></div>
 <p>Most of the misfit of the global model comes from the within part of the model. We can see this by comparing the 3 models. By looking at the <em>Saturated Within</em> model we can see that the fit indices are relatively high. This already suggests that the biggest discrepancies between the model implied and observed covariance matrix are likely to be at the within level. By contrast, the <em>Saturated Between</em> model shows comparatively worst fit (especially in term of TLI). Since we have perfect fit at the between level, this confirms that most of the most misfit is at the within level.</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>comparison_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="st">&quot;Models&quot;</span><span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;Global&quot;</span>, <span class="st">&quot;Saturated Within&quot;</span>, <span class="st">&quot;Saturated between&quot;</span>), </span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;LL&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>LL, </span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>                         prog_sat_w_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>LL, </span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>                         prog_sat_b_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>LL),</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;df&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>ChiSqM_DF, </span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>                         prog_sat_w_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>ChiSqM_DF, </span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>                         prog_sat_b_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>ChiSqM_DF),</span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>      </span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;CFI&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>CFI, </span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>                         prog_sat_w_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>CFI, </span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>                         prog_sat_b_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>CFI),</span>
-<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>                </span>
-<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;TLI&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>TLI, </span>
-<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>                         prog_sat_w_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>TLI, </span>
-<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>                         prog_sat_b_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>TLI),</span>
-<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>                </span>
-<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;AIC&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>AIC, </span>
-<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>                         prog_sat_w_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>AIC, </span>
-<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>                         prog_sat_b_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>AIC),</span>
-<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>                </span>
-<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;BIC&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>BIC, </span>
-<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>                         prog_sat_w_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>BIC, </span>
-<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a>                         prog_sat_b_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>BIC),</span>
-<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>                </span>
-<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;RMSEA&quot;</span><span class="ot">=</span> <span class="fu">c</span>(prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>RMSEA_Estimate, </span>
-<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a>                         prog_sat_w_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>RMSEA_Estimate, </span>
-<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a>                         prog_sat_b_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>RMSEA_Estimate)</span>
-<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb26-30"><a href="#cb26-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-31"><a href="#cb26-31" aria-hidden="true" tabindex="-1"></a>comparison_df</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>comparison_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="st">&quot;Models&quot;</span><span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;Global&quot;</span>, <span class="st">&quot;Saturated Within&quot;</span>, <span class="st">&quot;Saturated between&quot;</span>), </span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;LL&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>LL, </span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>                         prog_sat_w_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>LL, </span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>                         prog_sat_b_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>LL),</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;df&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>ChiSqM_DF, </span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>                         prog_sat_w_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>ChiSqM_DF, </span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>                         prog_sat_b_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>ChiSqM_DF),</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;CFI&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>CFI, </span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>                         prog_sat_w_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>CFI, </span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>                         prog_sat_b_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>CFI),</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>                </span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;TLI&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>TLI, </span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>                         prog_sat_w_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>TLI, </span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>                         prog_sat_b_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>TLI),</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>                </span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;AIC&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>AIC, </span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>                         prog_sat_w_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>AIC, </span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>                         prog_sat_b_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>AIC),</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>                </span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;BIC&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>BIC, </span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>                         prog_sat_w_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>BIC, </span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>                         prog_sat_b_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>BIC),</span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>                </span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;RMSEA&quot;</span><span class="ot">=</span> <span class="fu">c</span>(prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>RMSEA_Estimate, </span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>                         prog_sat_w_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>RMSEA_Estimate, </span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>                         prog_sat_b_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>RMSEA_Estimate)</span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>comparison_df</span></code></pre></div>
 <pre><code>             Models        LL df   CFI   TLI     AIC     BIC RMSEA
 1            Global -765125.9 10 0.960 0.920 1530302 1530531 0.017
 2  Saturated Within -764323.3  5 0.995 0.979 1528707 1528981 0.009
@@ -582,66 +481,67 @@ pre:not([class]) {
 <div id="cross-level-invariance" class="section level1">
 <h1>Cross-level invariance</h1>
 <p>We can test for cross-level invariance by fixing the loadings of our latent construct to be the same at the within and between level. We do so by using the exact same label names for each lambda at te within and between level.</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># write the Mplus model</span></span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>prog_inv_model <span class="ot">&lt;-</span> <span class="fu">mplusObject</span>(</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">TITLE =</span> <span class="st">&quot;Cross-level invariance model;&quot;</span>,</span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">VARIABLE =</span> <span class="fu">paste</span>(<span class="fu">paste</span>(<span class="fu">strwrap</span>(<span class="fu">paste</span>(<span class="st">&quot;USEVARIABLES = &quot;</span>,<span class="fu">paste</span>(<span class="fu">names</span>(wvs7_f_m), <span class="at">collapse=</span><span class="st">&quot; &quot;</span>),</span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>                                       <span class="st">&quot;;&quot;</span>), <span class="dv">30</span>), <span class="at">collapse =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>),</span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CLUSTER = Country;&quot;</span>,    <span class="co"># grouping variable </span></span>
-<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">sep =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span></span>
-<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">ANALYSIS =</span> <span class="st">&quot; TYPE = TWOLEVEL; ! multi-level   </span></span>
-<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a><span class="st">               PROCESSORS = 2;  ! nuber of phisical processor in your machine&quot;</span>, </span>
-<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">MODEL =</span> <span class="st">&quot;</span></span>
-<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a><span class="st">  %WITHIN% </span></span>
-<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q182 (l1);</span></span>
-<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q184 (l2);</span></span>
-<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q185 (l3);</span></span>
-<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q186 (l4);</span></span>
-<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q188 (l5);</span></span>
-<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a><span class="st">  %BETWEEN%</span></span>
-<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q182 (l1);</span></span>
-<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q184 (l2);</span></span>
-<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q185 (l3);</span></span>
-<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q186 (l4);</span></span>
-<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q188 (l5);</span></span>
-<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a><span class="st">  &quot;</span>,</span>
-<span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">rdata =</span> wvs7_f_m</span>
-<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Run the model ##</span></span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>prog_inv_results <span class="ot">&lt;-</span> <span class="fu">mplusModeler</span>(<span class="at">object =</span> prog_inv_model,            </span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">modelout =</span> <span class="st">&quot;prog_inv_model.inp&quot;</span>, </span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">run =</span> 1L,                      </span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">hashfilename =</span> <span class="cn">FALSE</span>         </span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>                                                      )</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># write the Mplus model</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>prog_inv_model <span class="ot">&lt;-</span> <span class="fu">mplusObject</span>(</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">TITLE =</span> <span class="st">&quot;Cross-level invariance model;&quot;</span>,</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">VARIABLE =</span> <span class="fu">paste</span>(<span class="fu">paste</span>(<span class="fu">strwrap</span>(<span class="fu">paste</span>(<span class="st">&quot;USEVARIABLES = &quot;</span>,<span class="fu">paste</span>(<span class="fu">names</span>(wvs7_f_m), <span class="at">collapse=</span><span class="st">&quot; &quot;</span>),</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>                                       <span class="st">&quot;;&quot;</span>), <span class="dv">30</span>), <span class="at">collapse =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>),</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CLUSTER = Country;&quot;</span>,    <span class="co"># grouping variable </span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">sep =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">ANALYSIS =</span> <span class="st">&quot; TYPE = TWOLEVEL; ! multi-level   </span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="st">               PROCESSORS = 2;  ! nuber of phisical processor in your machine&quot;</span>, </span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">MODEL =</span> <span class="st">&quot;</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a><span class="st">  %WITHIN% </span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q182 (l1);</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q184 (l2);</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q185 (l3);</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q186 (l4);</span></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q188 (l5);</span></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a><span class="st">  %BETWEEN%</span></span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q182 (l1);</span></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q184 (l2);</span></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q185 (l3);</span></span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q186 (l4);</span></span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q188 (l5);</span></span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a><span class="st">  &quot;</span>,</span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">rdata =</span> wvs7_f_m</span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Run the model ##</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>prog_inv_results <span class="ot">&lt;-</span> <span class="fu">mplusModeler</span>(<span class="at">object =</span> prog_inv_model,            </span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">modelout =</span> <span class="st">&quot;prog_inv_model.inp&quot;</span>, </span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">run =</span> 1L,                      </span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">hashfilename =</span> <span class="cn">FALSE</span>,              </span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">Mplus_command =</span>  <span class="st">&quot;/Applications/MplusDemo/mpdemo&quot;</span> </span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>                                                      )</span></code></pre></div>
 <p>Even without running a LR test, we can see that the two models are quite similar. However, we note a reduction in the CFI that might indicate that some of the loadings are estimated to be different between the two levels.</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>comparison_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="st">&quot;Models&quot;</span><span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;Configural&quot;</span>, <span class="st">&quot;Cross-Level Invariant&quot;</span>), </span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;LL&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>LL, </span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>                         prog_inv_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>LL),</span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;df&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>ChiSqM_DF, </span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>                         prog_inv_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>ChiSqM_DF),</span>
-<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>      </span>
-<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;CFI&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>CFI, </span>
-<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>                         prog_inv_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>CFI),</span>
-<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>                </span>
-<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;TLI&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>TLI, </span>
-<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>                         prog_inv_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>TLI),</span>
-<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>                </span>
-<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;AIC&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>AIC, </span>
-<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>                         prog_inv_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>AIC),</span>
-<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>                </span>
-<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;BIC&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>BIC, </span>
-<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>                         prog_inv_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>BIC),</span>
-<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>                </span>
-<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;RMSEA&quot;</span><span class="ot">=</span> <span class="fu">c</span>(prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>RMSEA_Estimate, </span>
-<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>                         prog_inv_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>RMSEA_Estimate)</span>
-<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb30-23"><a href="#cb30-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-24"><a href="#cb30-24" aria-hidden="true" tabindex="-1"></a>comparison_df</span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>comparison_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="st">&quot;Models&quot;</span><span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;Configural&quot;</span>, <span class="st">&quot;Cross-Level Invariant&quot;</span>), </span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;LL&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>LL, </span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>                         prog_inv_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>LL),</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;df&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>ChiSqM_DF, </span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>                         prog_inv_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>ChiSqM_DF),</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;CFI&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>CFI, </span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>                         prog_inv_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>CFI),</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>                </span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;TLI&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>TLI, </span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>                         prog_inv_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>TLI),</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>                </span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;AIC&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>AIC, </span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>                         prog_inv_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>AIC),</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>                </span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;BIC&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>BIC, </span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>                         prog_inv_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>BIC),</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>                </span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;RMSEA&quot;</span><span class="ot">=</span> <span class="fu">c</span>(prog_c_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>RMSEA_Estimate, </span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>                         prog_inv_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>RMSEA_Estimate)</span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>comparison_df</span></code></pre></div>
 <pre><code>                 Models        LL df   CFI   TLI     AIC     BIC RMSEA
 1            Configural -765125.9 10 0.960 0.920 1530302 1530531 0.017
 2 Cross-Level Invariant -765144.6 14 0.947 0.924 1530331 1530524 0.017</code></pre>
@@ -649,120 +549,226 @@ pre:not([class]) {
 <div id="random-loadings-model" class="section level1">
 <h1>Random loadings model</h1>
 <p>We have seen that most of the misfit comes from the within-part of the model. This implies that in some countries, our factor loadings deviates from grand mean. We can test if a random loadings model would improve our model fit by allowing the loadings to differ between countries.</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># write the Mplus model</span></span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>prog_random_model <span class="ot">&lt;-</span> <span class="fu">mplusObject</span>(</span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">TITLE =</span> <span class="st">&quot;Cross-level invariance model;&quot;</span>,</span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">VARIABLE =</span> <span class="fu">paste</span>(<span class="fu">paste</span>(<span class="fu">strwrap</span>(<span class="fu">paste</span>(<span class="st">&quot;USEVARIABLES = &quot;</span>,<span class="fu">paste</span>(<span class="fu">names</span>(wvs7_f_m), <span class="at">collapse=</span><span class="st">&quot; &quot;</span>),</span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>                                       <span class="st">&quot;;&quot;</span>), <span class="dv">30</span>), <span class="at">collapse =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>),</span>
-<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CLUSTER = Country;&quot;</span>,    <span class="co"># grouping variable </span></span>
-<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">sep =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span></span>
-<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">ANALYSIS =</span> <span class="st">&quot; TYPE = TWOLEVEL RANDOM ; ! multi-level with random effects  </span></span>
-<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a><span class="st">               ESTIMATOR = BAYES; ! works only with the bayesian estimator</span></span>
-<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a><span class="st">               PROCESSORS = 2;  ! nuber of phisical processor in your machine&quot;</span>, </span>
-<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">MODEL =</span> <span class="st">&quot;</span></span>
-<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a><span class="st">  %WITHIN% </span></span>
-<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a><span class="st">  s1 | prog_w BY Q182;</span></span>
-<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a><span class="st">  s2 | prog_w BY Q184;</span></span>
-<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a><span class="st">  s3 | prog_w BY Q185;</span></span>
-<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a><span class="st">  s4 | prog_w BY Q186;</span></span>
-<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a><span class="st">  s5 | prog_w BY Q188;</span></span>
-<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a><span class="st">  %BETWEEN%</span></span>
-<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a><span class="st">  s1-s5 </span></span>
-<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q182;</span></span>
-<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q184;</span></span>
-<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q185;</span></span>
-<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q186;</span></span>
-<span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q188;</span></span>
-<span id="cb32-27"><a href="#cb32-27" aria-hidden="true" tabindex="-1"></a><span class="st">  &quot;</span>,</span>
-<span id="cb32-28"><a href="#cb32-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">rdata =</span> wvs7_f_m</span>
-<span id="cb32-29"><a href="#cb32-29" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Run the model ##</span></span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>prog_random_results <span class="ot">&lt;-</span> <span class="fu">mplusModeler</span>(<span class="at">object =</span> prog_random_model,            </span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">modelout =</span> <span class="st">&quot;prog_random_model.inp&quot;</span>, </span>
-<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">run =</span> 1L,                      </span>
-<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">hashfilename =</span> <span class="cn">FALSE</span>         </span>
-<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># write the Mplus model</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>prog_random_model <span class="ot">&lt;-</span> <span class="fu">mplusObject</span>(</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">TITLE =</span> <span class="st">&quot;Cross-level invariance model;&quot;</span>,</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">VARIABLE =</span> <span class="fu">paste</span>(<span class="fu">paste</span>(<span class="fu">strwrap</span>(<span class="fu">paste</span>(<span class="st">&quot;USEVARIABLES = &quot;</span>,<span class="fu">paste</span>(<span class="fu">names</span>(wvs7_f_m), <span class="at">collapse=</span><span class="st">&quot; &quot;</span>),</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>                                       <span class="st">&quot;;&quot;</span>), <span class="dv">30</span>), <span class="at">collapse =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>),</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CLUSTER = Country;&quot;</span>,    <span class="co"># grouping variable </span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">sep =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">ANALYSIS =</span> <span class="st">&quot; TYPE = TWOLEVEL RANDOM ; ! multi-level with random effects  </span></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="st">               ESTIMATOR = BAYES; ! works only with the bayesian estimator</span></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a><span class="st">               PROCESSORS = 2;  ! nuber of phisical processor in your machine&quot;</span>, </span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">MODEL =</span> <span class="st">&quot;</span></span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a><span class="st">  %WITHIN% </span></span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a><span class="st">  s1 | prog_w BY Q182;</span></span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a><span class="st">  s2 | prog_w BY Q184;</span></span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a><span class="st">  s3 | prog_w BY Q185;</span></span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a><span class="st">  s4 | prog_w BY Q186;</span></span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a><span class="st">  s5 | prog_w BY Q188;</span></span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a><span class="st">  %BETWEEN%</span></span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a><span class="st">  s1-s5 </span></span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q182;</span></span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q184;</span></span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q185;</span></span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q186;</span></span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q188;</span></span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a><span class="st">  &quot;</span>,</span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">rdata =</span> wvs7_f_m</span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Run the model ##</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>prog_random_results <span class="ot">&lt;-</span> <span class="fu">mplusModeler</span>(<span class="at">object =</span> prog_random_model,            </span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">modelout =</span> <span class="st">&quot;prog_random_model.inp&quot;</span>, </span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">run =</span> 1L,                      </span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">hashfilename =</span> <span class="cn">FALSE</span>         </span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <p>Although we cannot get standardized estimates, we can see that variances of the loadings across our countries is relatively high.</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>params <span class="ot">&lt;-</span> prog_random_results<span class="sc">$</span>results<span class="sc">$</span>parameters<span class="sc">$</span>unstandardized</span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>means <span class="ot">&lt;-</span> params <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">str_detect</span>(param, <span class="st">&quot;S&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>                <span class="fu">filter</span>(<span class="fu">str_detect</span>(paramHeader, <span class="st">&quot;Means&quot;</span>))<span class="sc">%&gt;%</span> </span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>                <span class="fu">select</span>(param, est,lower_2<span class="fl">.5</span>ci,upper_2<span class="fl">.5</span>ci)<span class="sc">%&gt;%</span></span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>                dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="st">&quot;Loadings Estimates&quot;</span>  <span class="ot">=</span> est)</span>
-<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>var <span class="ot">&lt;-</span> params <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">str_detect</span>(param, <span class="st">&quot;S&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>                <span class="fu">filter</span>(<span class="fu">str_detect</span>(paramHeader, <span class="st">&quot;Variances&quot;</span>))<span class="sc">%&gt;%</span> </span>
-<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>                <span class="fu">select</span>(param, est) <span class="sc">%&gt;%</span></span>
-<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>                dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="st">&quot;Loadings Variance&quot;</span> <span class="ot">=</span> est)</span>
-<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>table_random_loadings <span class="ot">&lt;-</span> <span class="fu">left_join</span>(means,var,<span class="at">by=</span><span class="st">&quot;param&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>                         <span class="fu">select</span>(param,<span class="st">&quot;Loadings Estimates&quot;</span>,<span class="st">&quot;Loadings Variance&quot;</span>, <span class="fu">everything</span>() ) <span class="sc">%&gt;%</span></span>
-<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>                         dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="st">&quot;Parameter&quot;</span> <span class="ot">=</span> param) <span class="sc">%&gt;%</span></span>
-<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>                         dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="st">&quot;Lower CI (95%)&quot;</span> <span class="ot">=</span> lower_2<span class="fl">.5</span>ci) <span class="sc">%&gt;%</span></span>
-<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>                         dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="st">&quot;Upper CI (95%)&quot;</span> <span class="ot">=</span> upper_2<span class="fl">.5</span>ci)</span>
-<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>table_random_loadings</span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>params <span class="ot">&lt;-</span> prog_random_results<span class="sc">$</span>results<span class="sc">$</span>parameters<span class="sc">$</span>unstandardized</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>means <span class="ot">&lt;-</span> params <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">str_detect</span>(param, <span class="st">&quot;S&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>                <span class="fu">filter</span>(<span class="fu">str_detect</span>(paramHeader, <span class="st">&quot;Means&quot;</span>))<span class="sc">%&gt;%</span> </span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>                <span class="fu">select</span>(param, est,lower_2<span class="fl">.5</span>ci,upper_2<span class="fl">.5</span>ci)<span class="sc">%&gt;%</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>                dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="st">&quot;Loadings Estimates&quot;</span>  <span class="ot">=</span> est)</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>var <span class="ot">&lt;-</span> params <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">str_detect</span>(param, <span class="st">&quot;S&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>                <span class="fu">filter</span>(<span class="fu">str_detect</span>(paramHeader, <span class="st">&quot;Variances&quot;</span>))<span class="sc">%&gt;%</span> </span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>                <span class="fu">select</span>(param, est) <span class="sc">%&gt;%</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>                dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="st">&quot;Loadings Variance&quot;</span> <span class="ot">=</span> est)</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>table_random_loadings <span class="ot">&lt;-</span> <span class="fu">left_join</span>(means,var,<span class="at">by=</span><span class="st">&quot;param&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>                         <span class="fu">select</span>(param,<span class="st">&quot;Loadings Estimates&quot;</span>,<span class="st">&quot;Loadings Variance&quot;</span>, <span class="fu">everything</span>() ) <span class="sc">%&gt;%</span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>                         dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="st">&quot;Parameter&quot;</span> <span class="ot">=</span> param) <span class="sc">%&gt;%</span></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>                         dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="st">&quot;Lower CI (95%)&quot;</span> <span class="ot">=</span> lower_2<span class="fl">.5</span>ci) <span class="sc">%&gt;%</span></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>                         dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="st">&quot;Upper CI (95%)&quot;</span> <span class="ot">=</span> upper_2<span class="fl">.5</span>ci)</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>table_random_loadings</span></code></pre></div>
 <pre><code>  Parameter Loadings Estimates Loadings Variance Lower CI (95%) Upper CI (95%)
 1        S1              1.435             0.378          1.249          1.629
 2        S2              1.455             0.257          1.299          1.613
 3        S3              1.781             0.180          1.630          1.928
 4        S4              1.660             0.399          1.461          1.900
 5        S5              1.272             0.220          1.119          1.448</code></pre>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># write the Mplus model</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>prog_c_bayes_model <span class="ot">&lt;-</span> <span class="fu">mplusObject</span>(</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">TITLE =</span> <span class="st">&quot;Baseline invariance model estimated with bayes;&quot;</span>,</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">VARIABLE =</span> <span class="fu">paste</span>(<span class="fu">paste</span>(<span class="fu">strwrap</span>(<span class="fu">paste</span>(<span class="st">&quot;USEVARIABLES = &quot;</span>,<span class="fu">paste</span>(<span class="fu">names</span>(wvs7_f_m), <span class="at">collapse=</span><span class="st">&quot; &quot;</span>),</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>                                       <span class="st">&quot;;&quot;</span>), <span class="dv">30</span>), <span class="at">collapse =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>),</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CLUSTER = Country;&quot;</span>,    <span class="co"># grouping variable </span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">sep =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">ANALYSIS =</span> <span class="st">&quot; TYPE = TWOLEVEL; </span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a><span class="st">               ESTIMATOR = BAYES;</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a><span class="st">               PROCESSORS = 2;  ! nuber of phisical processor in your machine&quot;</span>, </span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">MODEL =</span> <span class="st">&quot;</span></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a><span class="st">  %WITHIN% </span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q182;</span></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q184;</span></span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q185;</span></span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q186;</span></span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q188;</span></span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a><span class="st">  %BETWEEN%</span></span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q182;</span></span>
+<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q184;</span></span>
+<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q185;</span></span>
+<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q186;</span></span>
+<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q188;</span></span>
+<span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a><span class="st">  &quot;</span>,</span>
+<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">rdata =</span> wvs7_f_m</span>
+<span id="cb28-28"><a href="#cb28-28" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Run the model ##</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>prog_c_bayes_results <span class="ot">&lt;-</span> <span class="fu">mplusModeler</span>(<span class="at">object =</span> prog_c_bayes_model,            </span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">modelout =</span> <span class="st">&quot;prog_c_bayes_model.inp&quot;</span>, </span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">run =</span> 1L,                      </span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">hashfilename =</span> <span class="cn">FALSE</span>,            </span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">Mplus_command =</span>  <span class="st">&quot;/Applications/MplusDemo/mpdemo&quot;</span> </span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>                                                      )</span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>comparison_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="st">&quot;Models&quot;</span><span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;Baseline&quot;</span>, <span class="st">&quot;Random Loadings&quot;</span>), </span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;DIC&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(prog_c_bayes_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>DIC, </span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>                         prog_random_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>DIC),</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;pD&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(prog_c_bayes_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>pD, </span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>                         prog_random_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>pD)</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>comparison_df<span class="sc">$</span>delta <span class="ot">&lt;-</span>  <span class="cn">NA</span></span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>comparison_df<span class="sc">$</span>delta[<span class="dv">2</span>] <span class="ot">&lt;-</span>  comparison_df<span class="sc">$</span>DIC[<span class="dv">2</span>] <span class="sc">-</span> comparison_df<span class="sc">$</span>DIC[<span class="dv">1</span>] </span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>comparison_df</span></code></pre></div>
+<pre><code>           Models     DIC      pD     delta
+1        Baseline 1529248 240.593        NA
+2 Random Loadings 1515835 460.179 -13412.99</code></pre>
+<p>The DIC of the model which allows loadings to vary across countries is lower compared to the baseline, indicating better fit. Therefore, allowing factor loadings to vary across countries produces a better fitting model than constraining them to be the same.</p>
+</div>
+<div id="null-model-and-iccs-optional" class="section level1">
+<h1>Null model and ICCs (Optional)</h1>
+<p>As we did in the previous lab, we run a null-model without (1) any substantive predictors and (2) between-level only variables.</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># write the Mplus model</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>prog_null_model <span class="ot">&lt;-</span> <span class="fu">mplusObject</span>(</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">TITLE =</span> <span class="st">&quot;Null model Q182 Q184, Q185, Q186, Q188;&quot;</span>,</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">VARIABLE =</span> <span class="fu">paste</span>(<span class="fu">paste</span>(<span class="fu">strwrap</span>(<span class="fu">paste</span>(<span class="st">&quot;USEVARIABLES = &quot;</span>,<span class="fu">paste</span>(<span class="fu">names</span>(wvs7_f_m), <span class="at">collapse=</span><span class="st">&quot; &quot;</span>),</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>                                       <span class="st">&quot;;&quot;</span>), <span class="dv">30</span>), <span class="at">collapse =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>),</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CLUSTER = Country;&quot;</span>,    <span class="co"># grouping variable </span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">sep =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">ANALYSIS =</span> <span class="st">&quot; TYPE = TWOLEVEL; ! multi-level   </span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a><span class="st">               PROCESSORS = 2;  ! nuber of phisical processor in your machine&quot;</span>, </span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">MODEL =</span> <span class="st">&quot;</span></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a><span class="st">  %WITHIN% </span></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a><span class="st">  Q182 Q184 Q185 Q186 Q188;</span></span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a><span class="st">  %BETWEEN%</span></span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a><span class="st">  Q182 Q184 Q185 Q186 Q188;</span></span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a><span class="st">  &quot;</span>,</span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">rdata =</span> wvs7_f_m</span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Run the model ##</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>prog_null_results <span class="ot">&lt;-</span> <span class="fu">mplusModeler</span>(<span class="at">object =</span> prog_null_model,           <span class="co"># the model syntax</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">modelout =</span> <span class="st">&quot;prog_null_model.inp&quot;</span>,  <span class="co"># output file </span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">run =</span> 1L,                          <span class="co"># how many models should be run (1)</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">hashfilename =</span> <span class="cn">FALSE</span>,              <span class="co"># add a hash of the raw data</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">Mplus_command =</span>  <span class="st">&quot;/Applications/MplusDemo/mpdemo&quot;</span> </span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>                       )</span></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>prog_null_results<span class="sc">$</span>results<span class="sc">$</span>data_summary<span class="sc">$</span>ICC</span></code></pre></div>
+<pre><code>  variable   ICC
+1     Q182 0.350
+2     Q184 0.221
+3     Q185 0.242
+4     Q186 0.359
+5     Q188 0.245</code></pre>
+</div>
+<div id="configural-model-alternative-specification-optional" class="section level1">
+<h1>Configural model alternative specification (OPTIONAL)</h1>
+<p>Instead of fixing the first factor loading to 1 to scale the latent variable, we can fix its variance to 1. The two models are statistically equivalent.</p>
 <div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># write the Mplus model</span></span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>prog_c_bayes_model <span class="ot">&lt;-</span> <span class="fu">mplusObject</span>(</span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">TITLE =</span> <span class="st">&quot;Baseline invariance model estimated with bayes;&quot;</span>,</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>prog_c_alt_model <span class="ot">&lt;-</span> <span class="fu">mplusObject</span>(</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">TITLE =</span> <span class="st">&quot;Configural model alternative specification ;&quot;</span>,</span>
 <span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">VARIABLE =</span> <span class="fu">paste</span>(<span class="fu">paste</span>(<span class="fu">strwrap</span>(<span class="fu">paste</span>(<span class="st">&quot;USEVARIABLES = &quot;</span>,<span class="fu">paste</span>(<span class="fu">names</span>(wvs7_f_m), <span class="at">collapse=</span><span class="st">&quot; &quot;</span>),</span>
 <span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>                                       <span class="st">&quot;;&quot;</span>), <span class="dv">30</span>), <span class="at">collapse =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>),</span>
 <span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CLUSTER = Country;&quot;</span>,    <span class="co"># grouping variable </span></span>
 <span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">sep =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span></span>
 <span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">ANALYSIS =</span> <span class="st">&quot; TYPE = TWOLEVEL; </span></span>
-<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a><span class="st">               ESTIMATOR = BAYES;</span></span>
-<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a><span class="st">               PROCESSORS = 2;  ! nuber of phisical processor in your machine&quot;</span>, </span>
-<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">MODEL =</span> <span class="st">&quot;</span></span>
-<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a><span class="st">  %WITHIN% </span></span>
-<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q182;</span></span>
-<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q184;</span></span>
-<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q185;</span></span>
-<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q186;</span></span>
-<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q188;</span></span>
-<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a><span class="st">  %BETWEEN%</span></span>
-<span id="cb36-21"><a href="#cb36-21" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q182;</span></span>
-<span id="cb36-22"><a href="#cb36-22" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q184;</span></span>
-<span id="cb36-23"><a href="#cb36-23" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q185;</span></span>
-<span id="cb36-24"><a href="#cb36-24" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q186;</span></span>
-<span id="cb36-25"><a href="#cb36-25" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q188;</span></span>
-<span id="cb36-26"><a href="#cb36-26" aria-hidden="true" tabindex="-1"></a><span class="st">  &quot;</span>,</span>
-<span id="cb36-27"><a href="#cb36-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">rdata =</span> wvs7_f_m</span>
-<span id="cb36-28"><a href="#cb36-28" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">ANALYSIS =</span> <span class="st">&quot; TYPE = TWOLEVEL; ! multi-level   </span></span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a><span class="st">               PROCESSORS = 2;  ! nuber of phisical processor in your machine&quot;</span>, </span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">MODEL =</span> <span class="st">&quot;</span></span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a><span class="st">  %WITHIN% </span></span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q182* (lw1); ! free loading </span></span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q184  (lw2);</span></span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q185  (lw3);</span></span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q186  (lw4);</span></span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w BY Q188  (lw5);</span></span>
+<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_w@1;   ! variance of the factor </span></span>
+<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a><span class="st">  [prog_w@0]; ! mean of the factor </span></span>
+<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-21"><a href="#cb36-21" aria-hidden="true" tabindex="-1"></a><span class="st">  %BETWEEN%</span></span>
+<span id="cb36-22"><a href="#cb36-22" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q182* (lb1); ! free loading </span></span>
+<span id="cb36-23"><a href="#cb36-23" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q184  (lb2);</span></span>
+<span id="cb36-24"><a href="#cb36-24" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q185  (lb3);</span></span>
+<span id="cb36-25"><a href="#cb36-25" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q186  (lb4);</span></span>
+<span id="cb36-26"><a href="#cb36-26" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b BY Q188  (lb5);</span></span>
+<span id="cb36-27"><a href="#cb36-27" aria-hidden="true" tabindex="-1"></a><span class="st">  prog_b@1;   ! variance of the factor </span></span>
+<span id="cb36-28"><a href="#cb36-28" aria-hidden="true" tabindex="-1"></a><span class="st">  [prog_b@0]; ! mean of the factor </span></span>
+<span id="cb36-29"><a href="#cb36-29" aria-hidden="true" tabindex="-1"></a><span class="st">  &quot;</span>,</span>
+<span id="cb36-30"><a href="#cb36-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">rdata =</span> wvs7_f_m</span>
+<span id="cb36-31"><a href="#cb36-31" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Run the model ##</span></span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>prog_c_bayes_results <span class="ot">&lt;-</span> <span class="fu">mplusModeler</span>(<span class="at">object =</span> prog_c_bayes_model,            </span>
-<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">modelout =</span> <span class="st">&quot;prog_c_bayes_model.inp&quot;</span>, </span>
-<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">run =</span> 1L,                      </span>
-<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">hashfilename =</span> <span class="cn">FALSE</span>         </span>
-<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>comparison_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="st">&quot;Models&quot;</span><span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;Baseline&quot;</span>, <span class="st">&quot;Random Loadings&quot;</span>), </span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;DIC&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(prog_c_bayes_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>DIC, </span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>                         prog_random_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>DIC),</span>
-<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;pD&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(prog_c_bayes_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>pD, </span>
-<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>                         prog_random_results<span class="sc">$</span>results<span class="sc">$</span>summaries<span class="sc">$</span>pD)</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>prog_c_alt_results <span class="ot">&lt;-</span> <span class="fu">mplusModeler</span>(<span class="at">object =</span> prog_c_alt_model,         <span class="co"># the model syntax</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">modelout =</span> <span class="st">&quot;prog_c_alt_model.inp&quot;</span>, <span class="co"># output file </span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">run =</span> 1L,                          <span class="co"># how many models should be run (1)</span></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">hashfilename =</span> <span class="cn">FALSE</span>,              <span class="co"># add a hash of the raw data</span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">Mplus_command =</span>  <span class="st">&quot;/Applications/MplusDemo/mpdemo&quot;</span> </span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>                                                      )</span></code></pre></div>
+<p>We can extract the loadings or the within and between latent factor directly from the mplusModeler.</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>params <span class="ot">&lt;-</span> prog_c_alt_results<span class="sc">$</span>results<span class="sc">$</span>parameters<span class="sc">$</span>unstandardized</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="do">## loadings ## </span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>loadings_within <span class="ot">&lt;-</span> params <span class="sc">%&gt;%</span> <span class="fu">filter</span>(paramHeader <span class="sc">==</span> <span class="st">&quot;PROG_W.BY&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">select</span>(est) <span class="sc">%&gt;%</span> </span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">unlist</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">array</span>()</span>
 <span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>comparison_df<span class="sc">$</span>delta <span class="ot">&lt;-</span>  <span class="cn">NA</span></span>
-<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a>comparison_df<span class="sc">$</span>delta[<span class="dv">2</span>] <span class="ot">&lt;-</span>  comparison_df<span class="sc">$</span>DIC[<span class="dv">2</span>] <span class="sc">-</span> comparison_df<span class="sc">$</span>DIC[<span class="dv">1</span>] </span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>loadings_between <span class="ot">&lt;-</span> params <span class="sc">%&gt;%</span> <span class="fu">filter</span>(paramHeader <span class="sc">==</span> <span class="st">&quot;PROG_B.BY&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">select</span>(est) <span class="sc">%&gt;%</span> </span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">unlist</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">array</span>()</span>
 <span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a>comparison_df</span></code></pre></div>
-<pre><code>           Models     DIC      pD     delta
-1        Baseline 1529248 240.593        NA
-2 Random Loadings 1515835 460.179 -13412.99</code></pre>
-<p>The DIC of the model which allows loadings to vary across countries is lower compared to the baseline, indicating better fit. Therefore, allowing factor loadings to vary across countries produces a better fitting model than constraining them to be the same.</p>
+<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-15"><a href="#cb38-15" aria-hidden="true" tabindex="-1"></a><span class="fu">cbind</span>(loadings_within, loadings_between)</span></code></pre></div>
+<pre><code>     loadings_within loadings_between
+[1,]           1.624            1.746
+[2,]           1.660            1.179
+[3,]           1.928            1.487
+[4,]           1.859            1.918
+[5,]           1.500            1.321</code></pre>
 </div>
 <div id="references" class="section level1">
 <h1>References</h1>

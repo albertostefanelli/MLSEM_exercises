@@ -117,16 +117,18 @@ library("tidySEM")
 
 # Exercise instructions
 
-1. Assess and interpret the ICCs of the progressive values items (Q184, Q185, Q186, Q188) by fitting a null model (no substantive covariates of the outcome at either level of the model). 
-1. Fit a unidimensional two-levels factor model measuring attitudes towards progressive values (Q184, Q185, Q186, Q188) with the same factor structure on both levels. Fix one of the loadings for a latent variable to 1, and allow the factor variance to be estimated.
-3. Alternative specification: allow all factor loadings to be estimated, and fix factor variances to 1. **(OPTIONAL)**
-4. Perform a partially saturated model fit evaluation to assess at which level there is the highest lack of fit.
-5. Test for cross-level invariance by imposing equality constraints on the estimated factor loadings at both level.
-6. Fit a model with Random Factor Loadings. Interpret the results and compare to the previous model using different in  Deviance (DIC). 
+The input example are in square brackets. You can take a look at the .inp on https://github.com/albertostefanelli/MLSEM_exercises if you need some tips on how to fit the models in Mplus.  
 
-# Null model and ICCs
+1. Fit a unidimensional two-levels factor model measuring attitudes towards progressive values (Q184, Q185, Q186, Q188) with the same factor structure on both levels. Fix one of the loadings for a latent variable to 1, and allow the factor variance to be estimated. [prog_c_model.inp]
+4. Perform a partially saturated model fit evaluation to assess at which level there is the highest lack of fit. You can use the partially saturated model example prog_sat_w_model.inp [prog_sat_w_model.inp, prog_sat_b_model.inp]
+5. Test for cross-level invariance by imposing equality constraints on the estimated factor loadings at both level. [prog_inv_model.inp]
+6. Fit a model with Random Factor Loadings. Interpret the results and compare to the previous model using different in  Deviance (DIC). [prog_random_model.inp]
+3. Alternative specification for configural model: allow all factor loadings to be estimated, and fix factor variances to 1. **(OPTIONAL)** [prog_c_alt_model.inp]
+1. Assess and interpret the ICCs of the progressive values items (Q184, Q185, Q186, Q188) by fitting a null model (no substantive covariates of the outcome at either level of the model). **(OPTIONAL)** [prog_null_model.inp]
 
-As we did in the previous lab, we run a null-model without (1) any substantive predictors and (2) between-level only variables. 
+# Configural model with same factor structure across the two levels
+
+In the configural model the factor structure is the same across the two levels but the loadings are not constrained to be the same. We can fit this model in Mplus specifying different labels for each of the estimated factor loadings. 
 
 ```{r, echo=T, message=FALSE, warning=FALSE}
 # read and prepare the data ##
@@ -137,54 +139,6 @@ wvs7_f <- wvs7 %>%
 # remove feamle (need it later)
 wvs7_f_m <- wvs7_f %>% select(-Q275,-Q172P)
 
-# write the Mplus model
-prog_null_model <- mplusObject(
-  TITLE = "Null model Q182 Q184, Q185, Q186, Q188;",
-  VARIABLE = paste(paste(strwrap(paste("USEVARIABLES = ",paste(names(wvs7_f_m), collapse=" "),
-                                       ";"), 30), collapse = "\n"),
-  "CLUSTER = Country;",    # grouping variable 
-  sep = "\n"
-  ),
-  ANALYSIS = " TYPE = TWOLEVEL; ! multi-level   
-               PROCESSORS = 2;  ! nuber of phisical processor in your machine", 
-  MODEL = "
-  %WITHIN% 
-  Q182 Q184 Q185 Q186 Q188;
-
-  %BETWEEN%
-  Q182 Q184 Q185 Q186 Q188;
-
-  ",
-  rdata = wvs7_f_m
-)
-
-
-```
-
-```{r, echo=T, message=FALSE, warning=FALSE, results='hide'}
-## Run the model ##
-
-prog_null_results <- mplusModeler(object = prog_null_model,           # the model syntax
-                                   modelout = "prog_null_model.inp",  # output file 
-                                   run = 1L,                          # how many models should be run (1)
-                                   hashfilename = FALSE               # add a hash of the raw data
-                       )
-
-
-```
-
-
-```{r, echo=T, message=FALSE, warning=FALSE}
-
-prog_null_results$results$data_summary$ICC
-
-```
-
-# Configural model with same factor structure across the two levels
-
-In the configural model the factor structure is the same across the two levels but the loadings are not constrained to be the same. We can fit this model in Mplus specifying different labels for each of the estimated factor loadings. 
-
-```{r, echo=T, message=FALSE, warning=FALSE}
 
 # write the Mplus model
 prog_c_model <- mplusObject(
@@ -223,8 +177,8 @@ prog_c_model <- mplusObject(
 prog_c_results <- mplusModeler(object = prog_c_model,              # the model syntax
                                    modelout = "prog_c_model.inp",  # output file 
                                    run = 1L,                       # how many models should be run (1)
-                                   hashfilename = FALSE            # add a hash of the raw data
-
+                                   hashfilename = FALSE,              # add a hash of the raw data
+                                   Mplus_command =  "/Applications/MplusDemo/mpdemo" 
                                                       )
 
 ```
@@ -242,81 +196,6 @@ prog_c_results$results$summaries$RMSEA_Estimate
 
 ```
 
-# Configural model alternative specification (OPTIONAL)
-
-Instead of fixing the first factor loading to 1 to scale the latent variable, we can fix its variance to 1. The two models are statistically equivalent. 
-
-```{r, echo=T, message=FALSE, warning=FALSE}
-
-# write the Mplus model
-prog_c_alt_model <- mplusObject(
-  TITLE = "Configural model alternative specification ;",
-  VARIABLE = paste(paste(strwrap(paste("USEVARIABLES = ",paste(names(wvs7_f_m), collapse=" "),
-                                       ";"), 30), collapse = "\n"),
-  "CLUSTER = Country;",    # grouping variable 
-  sep = "\n"
-  ),
-  ANALYSIS = " TYPE = TWOLEVEL; ! multi-level   
-               PROCESSORS = 2;  ! nuber of phisical processor in your machine", 
-  MODEL = "
-  %WITHIN% 
-  prog_w BY Q182* (lw1); ! free loading 
-  prog_w BY Q184  (lw2);
-  prog_w BY Q185  (lw3);
-  prog_w BY Q186  (lw4);
-  prog_w BY Q188  (lw5);
-  prog_w@1;   ! variance of the factor 
-  [prog_w@0]; ! mean of the factor 
-
-  %BETWEEN%
-  prog_b BY Q182* (lb1); ! free loading 
-  prog_b BY Q184  (lb2);
-  prog_b BY Q185  (lb3);
-  prog_b BY Q186  (lb4);
-  prog_b BY Q188  (lb5);
-  prog_b@1;   ! variance of the factor 
-  [prog_b@0]; ! mean of the factor 
-  ",
-  rdata = wvs7_f_m
-)
-
-
-```
-
-
-```{r, echo=T, message=FALSE, warning=FALSE, results='hide'}
-## Run the model ##
-
-prog_c_alt_results <- mplusModeler(object = prog_c_alt_model,              # the model syntax
-                                   modelout = "prog_c_alt_model.inp",  # output file 
-                                   run = 1L,                       # how many models should be run (1)
-                                   hashfilename = FALSE            # add a hash of the raw data
-
-                                                      )
-
-```
-
-
-We can extract the loadings or the witin and between latent factor directly from the mplusModeler.
-
-```{r, echo=T, message=FALSE, warning=FALSE}
-
-params <- prog_c_alt_results$results$parameters$unstandardized
-## loadings ## 
-loadings_within <- params %>% filter(paramHeader == "PROG_W.BY") %>% 
-                   select(est) %>% 
-                   unlist() %>%
-                   array()
-
-
-loadings_between <- params %>% filter(paramHeader == "PROG_B.BY") %>% 
-                   select(est) %>% 
-                   unlist() %>%
-                   array()
-
-
-cbind(loadings_within, loadings_between)
-```
 
 # Partially saturated model fit
 
@@ -362,8 +241,8 @@ prog_sat_w_model <- mplusObject(
 prog_sat_w_results <- mplusModeler(object = prog_sat_w_model,             
                                    modelout = "prog_sat_w_model.inp",  
                                    run = 1L,                       
-                                   hashfilename = FALSE            
-
+                                   hashfilename = FALSE,            
+                                   Mplus_command =  "/Applications/MplusDemo/mpdemo" 
                                                       )
 
 ```
@@ -409,8 +288,8 @@ prog_sat_b_model <- mplusObject(
 prog_sat_b_results <- mplusModeler(object = prog_sat_b_model,             
                                    modelout = "prog_sat_b_model.inp",  
                                    run = 1L,                       
-                                   hashfilename = FALSE            
-
+                                   hashfilename = FALSE,              # add a hash of the raw data
+                                   Mplus_command =  "/Applications/MplusDemo/mpdemo" 
                                                       )
 
 
@@ -499,7 +378,8 @@ prog_inv_model <- mplusObject(
 prog_inv_results <- mplusModeler(object = prog_inv_model,            
                                    modelout = "prog_inv_model.inp", 
                                    run = 1L,                      
-                                   hashfilename = FALSE         
+                                   hashfilename = FALSE,              
+                                   Mplus_command =  "/Applications/MplusDemo/mpdemo" 
 
                                                       )
 
@@ -653,8 +533,9 @@ prog_c_bayes_model <- mplusObject(
 prog_c_bayes_results <- mplusModeler(object = prog_c_bayes_model,            
                                    modelout = "prog_c_bayes_model.inp", 
                                    run = 1L,                      
-                                   hashfilename = FALSE         
-)
+                                   hashfilename = FALSE,            
+                                   Mplus_command =  "/Applications/MplusDemo/mpdemo" 
+                                                      )
 
 ```
 
@@ -677,6 +558,136 @@ comparison_df$delta[2] <-  comparison_df$DIC[2] - comparison_df$DIC[1]
 comparison_df
 ```
 The DIC of the model which allows loadings to vary across countries is lower compared to the baseline, indicating better fit. Therefore, allowing factor loadings to vary across countries produces a better fitting model than constraining them to be the same. 
+
+
+
+# Null model and ICCs (Optional)
+
+As we did in the previous lab, we run a null-model without (1) any substantive predictors and (2) between-level only variables. 
+
+```{r, echo=T, message=FALSE, warning=FALSE}
+# write the Mplus model
+prog_null_model <- mplusObject(
+  TITLE = "Null model Q182 Q184, Q185, Q186, Q188;",
+  VARIABLE = paste(paste(strwrap(paste("USEVARIABLES = ",paste(names(wvs7_f_m), collapse=" "),
+                                       ";"), 30), collapse = "\n"),
+  "CLUSTER = Country;",    # grouping variable 
+  sep = "\n"
+  ),
+  ANALYSIS = " TYPE = TWOLEVEL; ! multi-level   
+               PROCESSORS = 2;  ! nuber of phisical processor in your machine", 
+  MODEL = "
+  %WITHIN% 
+  Q182 Q184 Q185 Q186 Q188;
+
+  %BETWEEN%
+  Q182 Q184 Q185 Q186 Q188;
+
+  ",
+  rdata = wvs7_f_m
+)
+
+
+```
+
+```{r, echo=T, message=FALSE, warning=FALSE, results='hide'}
+## Run the model ##
+
+prog_null_results <- mplusModeler(object = prog_null_model,           # the model syntax
+                                   modelout = "prog_null_model.inp",  # output file 
+                                   run = 1L,                          # how many models should be run (1)
+                                   hashfilename = FALSE,              # add a hash of the raw data
+                                   Mplus_command =  "/Applications/MplusDemo/mpdemo" 
+
+                       )
+
+
+```
+
+
+```{r, echo=T, message=FALSE, warning=FALSE}
+
+prog_null_results$results$data_summary$ICC
+
+```
+
+
+
+# Configural model alternative specification (OPTIONAL)
+
+Instead of fixing the first factor loading to 1 to scale the latent variable, we can fix its variance to 1. The two models are statistically equivalent. 
+
+```{r, echo=T, message=FALSE, warning=FALSE}
+
+# write the Mplus model
+prog_c_alt_model <- mplusObject(
+  TITLE = "Configural model alternative specification ;",
+  VARIABLE = paste(paste(strwrap(paste("USEVARIABLES = ",paste(names(wvs7_f_m), collapse=" "),
+                                       ";"), 30), collapse = "\n"),
+  "CLUSTER = Country;",    # grouping variable 
+  sep = "\n"
+  ),
+  ANALYSIS = " TYPE = TWOLEVEL; ! multi-level   
+               PROCESSORS = 2;  ! nuber of phisical processor in your machine", 
+  MODEL = "
+  %WITHIN% 
+  prog_w BY Q182* (lw1); ! free loading 
+  prog_w BY Q184  (lw2);
+  prog_w BY Q185  (lw3);
+  prog_w BY Q186  (lw4);
+  prog_w BY Q188  (lw5);
+  prog_w@1;   ! variance of the factor 
+  [prog_w@0]; ! mean of the factor 
+
+  %BETWEEN%
+  prog_b BY Q182* (lb1); ! free loading 
+  prog_b BY Q184  (lb2);
+  prog_b BY Q185  (lb3);
+  prog_b BY Q186  (lb4);
+  prog_b BY Q188  (lb5);
+  prog_b@1;   ! variance of the factor 
+  [prog_b@0]; ! mean of the factor 
+  ",
+  rdata = wvs7_f_m
+)
+
+
+```
+
+
+```{r, echo=T, message=FALSE, warning=FALSE, results='hide'}
+## Run the model ##
+
+prog_c_alt_results <- mplusModeler(object = prog_c_alt_model,         # the model syntax
+                                   modelout = "prog_c_alt_model.inp", # output file 
+                                   run = 1L,                          # how many models should be run (1)
+                                   hashfilename = FALSE,              # add a hash of the raw data
+                                   Mplus_command =  "/Applications/MplusDemo/mpdemo" 
+                                                      )
+
+```
+
+
+We can extract the loadings or the within and between latent factor directly from the mplusModeler.
+
+```{r, echo=T, message=FALSE, warning=FALSE}
+
+params <- prog_c_alt_results$results$parameters$unstandardized
+## loadings ## 
+loadings_within <- params %>% filter(paramHeader == "PROG_W.BY") %>% 
+                   select(est) %>% 
+                   unlist() %>%
+                   array()
+
+
+loadings_between <- params %>% filter(paramHeader == "PROG_B.BY") %>% 
+                   select(est) %>% 
+                   unlist() %>%
+                   array()
+
+
+cbind(loadings_within, loadings_between)
+```
 
 
 # References 

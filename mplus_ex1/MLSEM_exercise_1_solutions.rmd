@@ -552,5 +552,17 @@ screenreg(equality_m_g_results)
 
 ```
 
+# BONUS - Basic Plotting from Mplus
+
+```{r, echo=T, message=FALSE, warning=FALSE}
+#install.packages("semPlot")
+library("semPlot")
+semPlot::semPaths("equality_m_model_g.out")
+
+#library("tidySEM")
+#tidySEM::graph_sem(model = equality_m_g_results)
+
+```
+
 
 # References 

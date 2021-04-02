@@ -193,9 +193,11 @@
     <h2><a href="#content">Multilevel Structural Equation Modeling | Exercises 2</a></h2>
     <div id="toc">
       <ul>
-      <li><a href="#dataset">Dataset</a></li>
       <li><a href="#environment-preparation">Environment preparation</a></li>
+      <li><a href="#dataset">Dataset</a></li>
       <li><a href="#exercise-instructions">Exercise instructions</a></li>
+      <li><a href="#mplus-demo-using-mplusautomation">Mplus Demo using MplusAutomation</a></li>
+      <li><a href="#preparing-data-for-mplus-using-r---the-4-big-no">Preparing data for mplus using R - The 4 big NO</a></li>
       <li><a href="#null-model-and-iccs">Null model and ICCs</a></li>
       </ul>
     </div>
@@ -234,20 +236,6 @@ pre:not([class]) {
 }
 
 </style>
-<div id="dataset" class="section level1">
-<h1>Dataset</h1>
-<p>The data set used is the 7th wave of the World Values Survey. This wave is taking place in 2017-2021.</p>
-<p>Codebook:</p>
-<ul>
-<li><strong>Q182</strong> Justifiable: Homosexuality (1. Never justifiable – 10. Always justifiable)</li>
-<li><strong>Q184</strong> Justifiable: Abortion (1. Never justifiable – 10. Always justifiable)</li>
-<li><strong>Q185</strong> Justifiable: Divorce (1. Never justifiable – 10. Always justifiable)</li>
-<li><strong>Q186</strong> Justifiable: Sex before marriage (1. Never justifiable – 10. Always justifiable)</li>
-<li><strong>Q188</strong> Justifiable: Euthanasia (1. Never justifiable – 10. Always justifiable)</li>
-<li><strong>Q275</strong> Education (0. early childhood/No education – 8. Doctoral or equivalent, ISCED)</li>
-<li><strong>Q172P</strong> How often to you pray (1. Never, practically never – 8. Several times a day)</li>
-</ul>
-</div>
 <div id="environment-preparation" class="section level1">
 <h1>Environment preparation</h1>
 <p>First, let’s load the necessary packages to load, manipulate, visualize and analyse the data.</p>
@@ -271,57 +259,223 @@ pre:not([class]) {
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;readr&quot;</span>)      </span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;dplyr&quot;</span>)      </span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;stringr&quot;</span>)</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="do">### MODELING </span><span class="al">###</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;MplusAutomation&quot;</span>)       </span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="do">### VISUALIZATION </span><span class="al">###</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;texreg&quot;</span>)</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;tidySEM&quot;</span>)</span></code></pre></div>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;fastDummies&quot;</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="do">### MODELING </span><span class="al">###</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;MplusAutomation&quot;</span>)       </span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="do">### VISUALIZATION </span><span class="al">###</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;texreg&quot;</span>)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;tidySEM&quot;</span>)</span></code></pre></div>
+</div>
+<div id="dataset" class="section level1">
+<h1>Dataset</h1>
+<p>The data set used is the 7th wave of the World Values Survey. This wave is taking place in 2017-2021.</p>
+<p>Codebook:</p>
+<ul>
+<li><strong>Q182</strong> Justifiable: Homosexuality (1. Never justifiable – 10. Always justifiable)</li>
+<li><strong>Q184</strong> Justifiable: Abortion (1. Never justifiable – 10. Always justifiable)</li>
+<li><strong>Q185</strong> Justifiable: Divorce (1. Never justifiable – 10. Always justifiable)</li>
+<li><strong>Q186</strong> Justifiable: Sex before marriage (1. Never justifiable – 10. Always justifiable)</li>
+<li><strong>Q188</strong> Justifiable: Euthanasia (1. Never justifiable – 10. Always justifiable)</li>
+<li><strong>Q275</strong> Education (0. early childhood/No education – 8. Doctoral or equivalent, ISCED)</li>
+<li><strong>Q172P</strong> How often you pray (1. Never, practically never – 8. Several times a day)</li>
+</ul>
 </div>
 <div id="exercise-instructions" class="section level1">
 <h1>Exercise instructions</h1>
+<p>The input example are in square brackets. You can take a look at the .inp on <a href="https://github.com/albertostefanelli/MLSEM_exercises" class="uri">https://github.com/albertostefanelli/MLSEM_exercises</a> if you need some tips on how to fit the models in Mplus.</p>
 <ol style="list-style-type: decimal">
-<li>Assess and interpret the ICCs of the progressive values items (Q184, Q185, Q186, Q188) by fitting a null model (no substantive covariates of the outcome at either level of the model).</li>
-<li>Fit a unidimensional two-levels factor model measuring attitudes towards progressive values (Q184, Q185, Q186, Q188) with the same factor structure on both levels. Fix one of the loadings for a latent variable to 1, and allow the factor variance to be estimated.</li>
-<li>Alternative specification: allow all factor loadings to be estimated, and fix factor variances to 1. <strong>(OPTIONAL)</strong></li>
-<li>Perform a partially saturated model fit evaluation to assess at which level there is the highest lack of fit.</li>
-<li>Test for cross-level invariance by imposing equality constraints on the estimated factor loadings at both level.</li>
-<li>Fit a model with Random Factor Loadings. Interpret the results and compare to the previous model using different in Deviance (DIC).</li>
+<li>Fit a unidimensional two-levels factor model measuring attitudes towards progressive values (Q184, Q185, Q186, Q188) with the same factor structure on both levels. Fix one of the loadings for a latent variable to 1, and allow the factor variance to be estimated. [prog_c_model.inp]</li>
+<li>Perform a partially saturated model fit evaluation to assess at which level there is the highest lack of fit. You can use the partially saturated model example prog_sat_w_model.inp [prog_sat_w_model.inp, prog_sat_b_model.inp]</li>
+<li>Test for cross-level invariance by imposing equality constraints on the estimated factor loadings at both level. [prog_inv_model.inp]</li>
+<li>Fit a model with Random Factor Loadings. Interpret the results and compare to the previous model using different in Deviance (DIC). [prog_random_model.inp]</li>
+<li>Alternative specification for configural model: allow all factor loadings to be estimated, and fix factor variances to 1. <strong>(OPTIONAL)</strong> [prog_c_alt_model.inp]</li>
+<li>Assess and interpret the ICCs of the progressive values items (Q184, Q185, Q186, Q188) by fitting a null model (no substantive covariates of the outcome at either level of the model). <strong>(OPTIONAL)</strong> [prog_null_model.inp]</li>
 </ol>
+</div>
+<div id="mplus-demo-using-mplusautomation" class="section level1">
+<h1>Mplus Demo using MplusAutomation</h1>
+<p>Using the demo version with with MplusAutomation is <strong>possible</strong>. Two options</p>
+<ol style="list-style-type: decimal">
+<li>Rename the Mplus folder and executable</li>
+</ol>
+<ul>
+<li>On WINDOWS Mplus Demo is usually located in “C:\Program Files\Mplus Demo.” The folder should berenamed as <em>Mplus</em></li>
+<li>On WINDOWS Mplus Demo executable is called mpdemo.exe. This should be renamed as <em>mplus.exe</em></li>
+<li>On MAC Mplus Demo is located in /Applications/MplusDemo/. The folder should b erenamed as <em>Mplus</em></li>
+<li>On MAC Mplus Demo executable is called mpdemo. This should be renamed as <em>Mplus</em></li>
+<li>On LINUX : )</li>
+</ul>
+<ol start="2" style="list-style-type: decimal">
+<li>Point mplusModeler to the right folder using Mplus_command argument.</li>
+</ol>
+<p>NB: Due to a bug in MplusAutomation 0.8 varwarnings should be always specified and set to TRUE such as <code>varwarnings = TRUE</code></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Run the model ##</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>equality_m_results <span class="ot">&lt;-</span> <span class="fu">mplusModeler</span>(<span class="at">object =</span> equality_m_model,         <span class="co"># the model syntax</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">modelout =</span> <span class="st">&quot;equality_m_model_demo.inp&quot;</span>, <span class="co"># output file </span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">run =</span> 1L,                          <span class="co"># how many models should be run (1)</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">hashfilename =</span> <span class="cn">FALSE</span>,              <span class="co"># add a hash of the raw data</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">varwarnings =</span> <span class="cn">TRUE</span>,                <span class="co"># THIS SHOULD BE SET TO TRUE WITH mplusAutomation 0.8 </span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">Mplus_command =</span>  <span class="st">&quot;/Applications/MplusDemo/mpdemo&quot;</span> </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>                       )</span></code></pre></div>
+</div>
+<div id="preparing-data-for-mplus-using-r---the-4-big-no" class="section level1">
+<h1>Preparing data for mplus using R - The 4 big NO</h1>
+<ol style="list-style-type: decimal">
+<li>No factors</li>
+<li>No long names for variables</li>
+<li>No character variables</li>
+<li>No “NAs” only numbers or .</li>
+</ol>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>wvs7 <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;https://github.com/albertostefanelli/MLSEM_exercises/raw/master/wvs7_ex_2.csv&quot;</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="do">### 1. dealing with exogenous dummy variable </span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>wvs7<span class="sc">$</span>gender_sim_with_a_long_name <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">runif</span>(<span class="fu">nrow</span>(wvs7),<span class="dv">0</span>,<span class="dv">2</span>),<span class="dv">0</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(wvs7<span class="sc">$</span>gender_sim_with_a_long_name)</span></code></pre></div>
+<pre><code>
+    0     1     2 
+17693 35497 17677 </code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>data_mplus <span class="ot">&lt;-</span> fastDummies<span class="sc">::</span><span class="fu">dummy_cols</span>(wvs7,</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;gender_sim_with_a_long_name&quot;</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">remove_first_dummy =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">ignore_na =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>data_mplus</span></code></pre></div>
+<pre><code># A tibble: 70,867 x 11
+   Country  Q182  Q184  Q185  Q186  Q188  Q275 Q172P gender_sim_with_a_long_name gender_sim_with_a_long_name_1 gender_sim_with_a_long_name_2
+   &lt;chr&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;                       &lt;dbl&gt;                         &lt;int&gt;                         &lt;int&gt;
+ 1 Andorra     4     2     5     4     1     3     3                           1                             1                             0
+ 2 Andorra     9     9     9    10     9     7     1                           0                             0                             0
+ 3 Andorra    10     5     6     6     8     7     1                           1                             1                             0
+ 4 Andorra     6     4     9    10     3     2     1                           2                             0                             1
+ 5 Andorra     8     5     7     8     5     2     1                           0                             0                             0
+ 6 Andorra    10     1    10    10     1     1     7                           1                             1                             0
+ 7 Andorra    10    10    10    10    10     1     4                           0                             0                             0
+ 8 Andorra    10     6    10    10    10     4     2                           2                             0                             1
+ 9 Andorra     8     5     5     7     8     1     2                           1                             1                             0
+10 Andorra    10     8    NA     8     8     5     7                           2                             0                             1
+# … with 70,857 more rows</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="do">### 2. dealing with long names </span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(data_mplus)[<span class="fu">grep</span>(<span class="st">&quot;gender_sim_with_a_long_name&quot;</span>,<span class="fu">names</span>(data_mplus))][<span class="sc">-</span><span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;MALE&quot;</span>,<span class="st">&quot;NONBIN&quot;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="do">### 3. dealing with character variable </span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>data_mplus<span class="sc">$</span>Country <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(data_mplus<span class="sc">$</span>Country)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="do">### 4. dealing with NAs</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>data_mplus[<span class="dv">60</span><span class="sc">:</span><span class="dv">70</span>,<span class="fu">c</span>(<span class="st">&quot;Country&quot;</span>, <span class="st">&quot;Q188&quot;</span>)]</span></code></pre></div>
+<pre><code># A tibble: 11 x 2
+   Country  Q188
+   &lt;fct&gt;   &lt;dbl&gt;
+ 1 Andorra     9
+ 2 Andorra     6
+ 3 Andorra     5
+ 4 Andorra    10
+ 5 Andorra     1
+ 6 Andorra     1
+ 7 Andorra     4
+ 8 Andorra     5
+ 9 Andorra    NA
+10 Andorra     9
+11 Andorra     5</code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prepareMplusData</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>      data_mplus,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;data1.dat&quot;</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">dropCols=</span><span class="st">&quot;gender_sim_with_a_long_name&quot;</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<pre><code>
+Factor: Country 
+Conversion:
+         level number
+       Andorra      1
+     Argentina      2
+     Australia      3
+    Bangladesh      4
+       Bolivia      5
+        Brazil      6
+         Chile      7
+         China      8
+      Colombia      9
+        Cyprus     10
+       Ecuador     11
+         Egypt     12
+      Ethiopia     13
+       Germany     14
+        Greece     15
+     Guatemala     16
+ Hong Kong SAR     17
+     Indonesia     18
+          Iran     19
+          Iraq     20
+         Japan     21
+        Jordan     22
+    Kazakhstan     23
+    Kyrgyzstan     24
+       Lebanon     25
+     Macau SAR     26
+      Malaysia     27
+        Mexico     28
+       Myanmar     29
+   New Zealand     30
+     Nicaragua     31
+       Nigeria     32
+      Pakistan     33
+          Peru     34
+   Philippines     35
+   Puerto Rico     36
+       Romania     37
+        Russia     38
+        Serbia     39
+   South Korea     40
+    Taiwan ROC     41
+    Tajikistan     42
+      Thailand     43
+       Tunisia     44
+        Turkey     45
+       Ukraine     46
+ United States     47
+       Vietnam     48
+      Zimbabwe     49
+TITLE: Your title goes here
+DATA: FILE = &quot;data1.dat&quot;;
+VARIABLE: 
+NAMES = Country Q182 Q184 Q185 Q186 Q188 Q275 Q172P MALE NONBIN; 
+MISSING=.;</code></pre>
 </div>
 <div id="null-model-and-iccs" class="section level1">
 <h1>Null model and ICCs</h1>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># read and prepare the data ##</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>wvs7 <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;https://github.com/albertostefanelli/MLSEM_exercises/raw/master/wvs7_ex_2.csv&quot;</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># transform dummy as factor as required by MplusAutomation  </span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>wvs7_f <span class="ot">&lt;-</span> wvs7 <span class="sc">%&gt;%</span> </span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>          <span class="fu">mutate_at</span>(<span class="fu">vars</span>(Country), as.factor)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># remove feamle (need it later)</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>wvs7_f_m <span class="ot">&lt;-</span> wvs7_f <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>Q275,<span class="sc">-</span>Q172P)</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># write the Mplus model</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>prog_null_model <span class="ot">&lt;-</span> <span class="fu">mplusObject</span>(</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">TITLE =</span> <span class="st">&quot;Null model Q182 Q184, Q185, Q186, Q188;&quot;</span>,</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">VARIABLE =</span> <span class="fu">paste</span>(<span class="fu">paste</span>(<span class="fu">strwrap</span>(<span class="fu">paste</span>(<span class="st">&quot;USEVARIABLES = &quot;</span>,<span class="fu">paste</span>(<span class="fu">names</span>(wvs7_f_m), <span class="at">collapse=</span><span class="st">&quot; &quot;</span>),</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>                                       <span class="st">&quot;;&quot;</span>), <span class="dv">30</span>), <span class="at">collapse =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>),</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CLUSTER = Country;&quot;</span>,    <span class="co"># grouping variable </span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">sep =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">ANALYSIS =</span> <span class="st">&quot; TYPE = TWOLEVEL; ! multi-level   </span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="st">               PROCESSORS = 2;  ! nuber of phisical processor in your machine&quot;</span>, </span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">MODEL =</span> <span class="st">&quot;</span></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="st">  %WITHIN% </span></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="st">  Q182 Q184 Q185 Q186 Q188;</span></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="st">  %BETWEEN%</span></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="st">  Q182 Q184 Q185 Q186 Q188;</span></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="st">  &quot;</span>,</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">rdata =</span> wvs7_f_m</span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="co"># continue in using MplusAutomation or directly in Mplus </span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># read and prepare the data ##</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>wvs7 <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;https://github.com/albertostefanelli/MLSEM_exercises/raw/master/wvs7_ex_2.csv&quot;</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co"># transform dummy as factor as required by MplusAutomation  </span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>wvs7_f <span class="ot">&lt;-</span> wvs7 <span class="sc">%&gt;%</span> </span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>          <span class="fu">mutate_at</span>(<span class="fu">vars</span>(Country), as.factor)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co"># remove feamle (need it later)</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>wvs7_f_m <span class="ot">&lt;-</span> wvs7_f <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>Q275,<span class="sc">-</span>Q172P)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co"># write the Mplus model</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>prog_null_model <span class="ot">&lt;-</span> <span class="fu">mplusObject</span>(</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">TITLE =</span> <span class="st">&quot;Null model Q182 Q184, Q185, Q186, Q188;&quot;</span>,</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">VARIABLE =</span> <span class="fu">paste</span>(<span class="fu">paste</span>(<span class="fu">strwrap</span>(<span class="fu">paste</span>(<span class="st">&quot;USEVARIABLES = &quot;</span>,<span class="fu">paste</span>(<span class="fu">names</span>(wvs7_f_m), <span class="at">collapse=</span><span class="st">&quot; &quot;</span>),</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>                                       <span class="st">&quot;;&quot;</span>), <span class="dv">30</span>), <span class="at">collapse =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>),</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CLUSTER = Country;&quot;</span>,    <span class="co"># grouping variable </span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">sep =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">ANALYSIS =</span> <span class="st">&quot; TYPE = TWOLEVEL; ! multi-level   </span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="st">               PROCESSORS = 2;  ! nuber of phisical processor in your machine&quot;</span>, </span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">MODEL =</span> <span class="st">&quot;</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="st">  %WITHIN% </span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a><span class="st">  Q182 Q184 Q185 Q186 Q188;</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a><span class="st">  %BETWEEN%</span></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="st">  Q182 Q184 Q185 Q186 Q188;</span></span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a><span class="st">  &quot;</span>,</span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">rdata =</span> wvs7_f_m</span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a><span class="co"># continue in using MplusAutomation or directly in Mplus </span></span></code></pre></div>
 </div>
 <div class="footnotes">
 <hr />
